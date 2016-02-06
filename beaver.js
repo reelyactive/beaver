@@ -16,6 +16,8 @@ angular.module('reelyactive.beaver', [])
     var stats = { appearances: 0, displacements: 0, keepalives: 0,
                   disappearances: 0 };
     var associationsApiUrl = DEFAULT_ASSOCIATIONS_API_URL;
+    var eventCallbacks = {};
+
 
     function updateDevice(event, data) {
       if(!data || !data.tiraid) {
@@ -30,10 +32,11 @@ angular.module('reelyactive.beaver', [])
       var id = tiraid.identifier.value;
       if(event === 'disappearance') {
         if(devices.hasOwnProperty(id)) {
-          // TODO: cache url and stats?
+          // TODO: cache stats?
           delete devices[id];
         }
         stats.disappearances++;
+        handleEventCallback(event, id);
         return;
       }
 
@@ -56,7 +59,9 @@ angular.module('reelyactive.beaver', [])
       if(event === 'appearance') { stats.appearances++; }
       if(event === 'displacement') { stats.displacements++; }
       if(event === 'keep-alive') { stats.keepalives++; }
+      handleEventCallback(event, device);
     }
+
 
     function getAssociations(id, callback) {
       if(associations.hasOwnProperty(id)) {
@@ -75,6 +80,22 @@ angular.module('reelyactive.beaver', [])
           return callback(id, associations[id]);
         });
     }
+
+
+    function handleEventCallback(event, device) {
+      var callback = eventCallbacks[event];
+      if(callback) {
+        callback(device);
+      }
+    }
+
+
+    var setEventCallback = function(event, callback) {
+      if(callback && (typeof callback === 'function')) { 
+        eventCallbacks[event] = callback;
+      }
+    }
+
 
     var handleSocketEvents = function(Socket) {
 
@@ -100,6 +121,7 @@ angular.module('reelyactive.beaver', [])
 
     return {
       listen: handleSocketEvents,
+      on: setEventCallback,
       getDevices: function() { return devices; },
       getStats: function() { return stats; }
     }

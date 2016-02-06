@@ -13,6 +13,9 @@ angular.module('appName', [ 'reelyactive.beaver' ])
   .controller('EventsCtrl', function($scope, beaver) {
     console.log(beaver.getStats());
     console.log(beaver.getDevices());
+    beaver.on('appearance', function(device) {
+      console.log(device);
+    });
   });
 ```
 
