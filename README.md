@@ -1,2 +1,41 @@
-# beaver
-Collects the real-time location of devices from reelyActive APIs via websockets or polling.  We believe in an open Internet of Things.
+beaver
+======
+
+Collects the real-time location of devices from reelyActive APIs via websockets or polling. We believe in an open Internet of Things.
+
+
+Hello beaver
+------------
+
+```javascript
+angular.module('appName', [ 'reelyactive.beaver' ])
+
+  .controller('EventsCtrl', function($scope, beaver) {
+    console.log(beaver.getStats());
+    console.log(beaver.getDevices());
+  });
+```
+
+Include the above in a .js file, and then source both that file and beaver.js in an HTML file.  Upon running the HTML file, the stats and devices will be output to the console.
+
+Instructions on how to listen on websockets or poll an API to come soon!
+
+
+License
+-------
+
+MIT License
+
+Copyright (c) 2016 reelyActive
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
