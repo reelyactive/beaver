@@ -36,7 +36,7 @@ angular.module('reelyactive.beaver', [])
           delete devices[id];
         }
         stats.disappearances++;
-        handleEventCallback(event, id);
+        handleEventCallback(event, data);
         return;
       }
 
