@@ -24,6 +24,53 @@ Include the above in a .js file, and then source both that file and beaver.js in
 Instructions on how to listen on websockets or poll an API to come soon!
 
 
+Devices
+-------
+
+All the devices currently detected by beaver can be obtained via the getDevices() function.  The associations for each device and the receivers of its transmissions will be automatically fetched by beaver.  For instance, getDevices() would return an object such as:
+
+    {
+      "fee150bada55":
+        "identifier": {
+          "type": "ADVA-48",
+          "value": "fee150bada55",
+          "advHeader": { /* ... */ },
+          "advData": { /* ... */ }
+        }
+        "timestamp": "2014-01-01T01:23:45.678Z",
+        "radioDecodings": [
+          {
+            "rssi": 128,
+            "identifier": {
+              "type": "EUI-64",
+              "value": "001bc50940800000"
+            },
+            "associations": {
+              "directory": "dam:entrance"
+            }
+          }
+        ],
+        "associations": {
+          "url": "http://reelyactive.com/"
+        }
+      }
+    }
+
+
+Stats
+-----
+
+All the statistics collected by beaver can be obtained via the getStats() function.  For instance, getStats() would return an object such as:
+
+    {
+      "appearances": 69,
+      "displacements": 7,
+      "keepalives": 1999,
+      "disappearances": 68
+    } 
+
+
+
 License
 -------
 
