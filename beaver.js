@@ -55,6 +55,7 @@ angular.module('reelyactive.beaver', [])
           }
         });
       }
+      addReceiverAssociations(tiraid);
 
       if(event === 'appearance') { stats.appearances++; }
       if(event === 'displacement') { stats.displacements++; }
@@ -79,6 +80,21 @@ angular.module('reelyactive.beaver', [])
         .error(function(data, status, headers, config) {
           return callback(id, associations[id]);
         });
+    }
+
+
+    function addReceiverAssociations(tiraid) {
+      for(var cDecoding = 0; cDecoding < tiraid.radioDecodings.length;
+          cDecoding++) {
+        var decoding = tiraid.radioDecodings[cDecoding];
+        var decoderId = decoding.identifier.value;
+        if(associations.hasOwnProperty(decoderId)) {
+          decoding.associations = associations[decoderId];
+        }
+        else {
+          getAssociations(decoderId, function(id, associations) {});
+        }
+      }
     }
 
 
