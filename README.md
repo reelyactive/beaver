@@ -1,7 +1,19 @@
 beaver
 ======
 
-Collects the real-time location of devices from reelyActive APIs via websockets or polling. We believe in an open Internet of Things.
+Collects the real-time state of devices from reelyActive APIs via websockets or polling. We believe in an open Internet of Things.
+
+
+In the scheme of Things (pun intended)
+--------------------------------------
+
+The __beaver.js__, [cormorant.js](https://github.com/reelyactive/cormorant) and [cuttlefish.js](https://github.com/reelyactive/cuttlefish) modules work together as a unit.  See our [dashboard-template-angular](https://github.com/reelyactive/dashboard-template-angular) for a minimal implementation.
+
+
+What's in a name?
+-----------------
+
+Coming soon...
 
 
 Hello beaver
@@ -11,17 +23,30 @@ Hello beaver
 angular.module('appName', [ 'reelyactive.beaver' ])
 
   .controller('EventsCtrl', function($scope, beaver) {
-    console.log(beaver.getStats());
-    console.log(beaver.getDevices());
+
+    $scope.stats = beaver.getStats();
+    $scope.devices = beaver.getDevices();
+
+    beaver.listen( /* socket.io */ );
+
     beaver.on('appearance', function(device) {
-      console.log(device);
+      console.log(device.tiraid.identifier.value + ' appeared');
+    });
+    beaver.on('keep-alive', function(device) {
+      console.log(device.tiraid.identifier.value + ' is staying alive');
+    });
+    beaver.on('displacement', function(device) {
+      console.log(device.tiraid.identifier.value + ' displaced');
+    });
+    beaver.on('disappearance', function(device) {
+      console.log(device.tiraid.identifier.value + ' disappeared');
     });
   });
 ```
 
-Include the above in a .js file, and then source both that file and beaver.js in an HTML file.  Upon running the HTML file, the stats and devices will be output to the console.
+Include the above in a .js file, and then source both that file and beaver.js in an HTML file.  Upon running the HTML file, the real-time events will be output to the console.
 
-Instructions on how to listen on websockets or poll an API to come soon!
+Instructions on how to listen on websockets or poll an API to come soon - see [dashboard-template-angular](https://github.com/reelyactive/dashboard-template-angular) for a working example.
 
 
 Devices
@@ -31,25 +56,27 @@ All the devices currently detected by beaver can be obtained via the getDevices(
 
     {
       "fee150bada55":
-        "identifier": {
-          "type": "ADVA-48",
-          "value": "fee150bada55",
-          "advHeader": { /* ... */ },
-          "advData": { /* ... */ }
-        }
-        "timestamp": "2014-01-01T01:23:45.678Z",
-        "radioDecodings": [
-          {
-            "rssi": 128,
-            "identifier": {
-              "type": "EUI-64",
-              "value": "001bc50940800000"
-            },
-            "associations": {
-              "directory": "dam:entrance"
-            }
+        "tiraid": {
+          "identifier": {
+            "type": "ADVA-48",
+            "value": "fee150bada55",
+            "advHeader": { /* ... */ },
+            "advData": { /* ... */ }
           }
-        ],
+          "timestamp": "2014-01-01T01:23:45.678Z",
+          "radioDecodings": [
+            {
+              "rssi": 128,
+              "identifier": {
+                "type": "EUI-64",
+                "value": "001bc50940800000"
+              },
+              "associations": {
+                "directory": "dam:entrance"
+              }
+            }
+          ]
+        },
         "associations": {
           "url": "http://reelyactive.com/"
         }
@@ -67,7 +94,7 @@ All the statistics collected by beaver can be obtained via the getStats() functi
       "displacements": 7,
       "keepalives": 1999,
       "disappearances": 68
-    } 
+    }
 
 
 
