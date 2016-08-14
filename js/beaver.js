@@ -19,24 +19,24 @@ angular.module('reelyactive.beaver', [])
     var eventCallbacks = {};
 
 
-    function updateDevice(event, data) {
-      if(!data || !data.tiraid) {
+    function updateDevice(type, event) {
+      if(!event || !event.tiraid) {
         return;
       }
 
-      var tiraid = data.tiraid;
+      var tiraid = event.tiraid;
       if(!tiraid || !tiraid.identifier || !tiraid.identifier.value) {
         return;
       }
 
       var id = tiraid.identifier.value;
-      if(event === 'disappearance') {
+      if(type === 'disappearance') {
         if(devices.hasOwnProperty(id)) {
           // TODO: cache stats?
           delete devices[id];
         }
         stats.disappearances++;
-        handleEventCallback(event, data);
+        handleEventCallback(type, event);
         return;
       }
 
@@ -57,10 +57,10 @@ angular.module('reelyactive.beaver', [])
       }
       addReceiverAssociations(tiraid);
 
-      if(event === 'appearance') { stats.appearances++; }
-      if(event === 'displacement') { stats.displacements++; }
-      if(event === 'keep-alive') { stats.keepalives++; }
-      handleEventCallback(event, device);
+      if(type === 'appearance') { stats.appearances++; }
+      if(type === 'displacement') { stats.displacements++; }
+      if(type === 'keep-alive') { stats.keepalives++; }
+      handleEventCallback(type, device);
     }
 
 
@@ -98,8 +98,8 @@ angular.module('reelyactive.beaver', [])
     }
 
 
-    function handleEventCallback(event, device) {
-      var callback = eventCallbacks[event];
+    function handleEventCallback(type, device) {
+      var callback = eventCallbacks[type];
       if(callback) {
         callback(device);
       }
@@ -115,20 +115,20 @@ angular.module('reelyactive.beaver', [])
 
     var handleSocketEvents = function(Socket) {
 
-      Socket.on('appearance', function(data) {
-        updateDevice('appearance', data);
+      Socket.on('appearance', function(event) {
+        updateDevice('appearance', event);
       });
 
-      Socket.on('displacement', function(data) {
-        updateDevice('displacement', data);
+      Socket.on('displacement', function(event) {
+        updateDevice('displacement', event);
       });
 
-      Socket.on('keep-alive', function(data) {
-        updateDevice('keep-alive', data);
+      Socket.on('keep-alive', function(event) {
+        updateDevice('keep-alive', event);
       });
 
-      Socket.on('disappearance', function(data) {
-        updateDevice('disappearance', data);
+      Socket.on('disappearance', function(event) {
+        updateDevice('disappearance', event);
       });
 
       Socket.on('error', function(err, data) {
