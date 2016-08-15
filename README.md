@@ -38,57 +38,45 @@ angular.module('appName', [ 'reelyactive.beaver' ])
 
     beaver.listen( /* socket.io */ );
 
-    beaver.on('appearance', function(device) {
-      console.log(device.tiraid.identifier.value + ' appeared');
+    beaver.on('appearance', function(event) {
+      console.log(event.deviceId + ' appeared on ' + event.receiverId);
     });
-    beaver.on('keep-alive', function(device) {
-      console.log(device.tiraid.identifier.value + ' is staying alive');
+    beaver.on('keep-alive', function(event) {
+      console.log(event.deviceId + ' is staying alive');
     });
-    beaver.on('displacement', function(device) {
-      console.log(device.tiraid.identifier.value + ' displaced');
+    beaver.on('displacement', function(event) {
+      console.log(event.deviceId + ' displaced to ' + event.receiverId);
     });
-    beaver.on('disappearance', function(device) {
-      console.log(device.tiraid.identifier.value + ' disappeared');
+    beaver.on('disappearance', function(event) {
+      console.log(event.deviceId + ' disappeared from ' + event.receiverId);
     });
   });
 ```
 
 Include the above in a .js file, and then source both that file and beaver.js in an HTML file.  Upon running the HTML file, the real-time events will be output to the console.
 
-Instructions on how to listen on websockets or poll an API to come soon - see [dashboard-template-angular](https://github.com/reelyactive/dashboard-template-angular) for a working example.
+Instructions on how to listen on websockets or poll an API to come soon - see [reelyactive.github.io/beaver](http://reelyactive.github.io/beaver/) for a working example with code in the [gh-pages branch](https://github.com/reelyactive/beaver/tree/gh-pages).
 
 
 Devices
 -------
 
-All the devices currently detected by beaver can be obtained via the getDevices() function.  The associations for each device and the receivers of its transmissions will be automatically fetched by beaver.  For instance, getDevices() would return an object such as:
+All the devices currently detected by beaver can be obtained via the getDevices() function.  For instance, getDevices() would return an object such as:
 
     {
-      "fee150bada55":
-        "tiraid": {
-          "identifier": {
-            "type": "ADVA-48",
-            "value": "fee150bada55",
-            "advHeader": { /* ... */ },
-            "advData": { /* ... */ }
-          }
-          "timestamp": "2014-01-01T01:23:45.678Z",
-          "radioDecodings": [
-            {
-              "rssi": 128,
-              "identifier": {
-                "type": "EUI-64",
-                "value": "001bc50940800000"
-              },
-              "associations": {
-                "directory": "dam:entrance"
-              }
-            }
-          ]
-        },
-        "associations": {
-          "url": "http://reelyactive.com/"
-        }
+      "fee150bada55": {
+        "event": "appearance",
+        "time": 1420075425678,
+        "deviceId": "fee150bada55",
+        "deviceAssociationIds": [],
+        "deviceUrl": "http://myjson.info/stories/test",
+        "deviceTags": [ 'test' ],
+        "receiverId": "001bc50940810000",
+        "receiverUrl": "http://sniffypedia.org/Product/reelyActive_RA-R436/",
+        "receiverTags": [ 'test' ],
+        "receiverDirectory": "test",
+        "rssi": 150,
+        "tiraid": { /* Legacy */ }
       }
     }
 
