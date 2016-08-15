@@ -4,97 +4,82 @@
  */
 
 
-DEFAULT_ASSOCIATIONS_API_URL = 'http://www.hyperlocalcontext.com/associations/';
-
-
 angular.module('reelyactive.beaver', [])
 
-  .factory('beaver', function beaverFactory($http) {
+  .factory('beaver', function beaverFactory() {
 
     var devices = {};
-    var associations = {};
     var stats = { appearances: 0, displacements: 0, keepalives: 0,
                   disappearances: 0 };
-    var associationsApiUrl = DEFAULT_ASSOCIATIONS_API_URL;
     var eventCallbacks = {};
 
 
     function updateDevice(type, event) {
-      if(!event || !event.tiraid) {
+      if(!isValidEvent) {
         return;
       }
 
-      var tiraid = event.tiraid;
-      if(!tiraid || !tiraid.identifier || !tiraid.identifier.value) {
-        return;
+      if(!event.hasOwnProperty('deviceId') && event.hasOwnProperty('tiraid')) {
+        updateLegacyEvent(event);
       }
 
-      var id = tiraid.identifier.value;
+      var deviceId = event.deviceId;
+      if(type === 'appearance') { stats.appearances++; }
+      if(type === 'displacement') { stats.displacements++; }
+      if(type === 'keep-alive') { stats.keepalives++; }
       if(type === 'disappearance') {
-        if(devices.hasOwnProperty(id)) {
-          // TODO: cache stats?
-          delete devices[id];
+        if(devices.hasOwnProperty(deviceId)) {
+          delete devices[deviceId];
         }
         stats.disappearances++;
         handleEventCallback(type, event);
         return;
       }
 
-      if(!devices.hasOwnProperty(id)) {
-        devices[id] = { tiraid: tiraid };
+      if(!devices.hasOwnProperty(deviceId)) {
+        devices[deviceId] = event;
       }
       else {
-        devices[id].tiraid = tiraid;
+        mergeDeviceEvents(devices[deviceId], event);
       }
 
-      var device = devices[id];
-      if(!device.hasOwnProperty('associations')) {
-        getAssociations(id, function(id, associations) {
-          if(devices.hasOwnProperty(id)) {
-            devices[id].associations = associations;
-          }
-        });
-      }
-      addReceiverAssociations(tiraid);
 
-      if(type === 'appearance') { stats.appearances++; }
-      if(type === 'displacement') { stats.displacements++; }
-      if(type === 'keep-alive') { stats.keepalives++; }
-      handleEventCallback(type, device);
+      handleEventCallback(type, event);
     }
 
 
-    function getAssociations(id, callback) {
-      if(associations.hasOwnProperty(id)) {
-        return callback(id, associations[id]);
+    function isValidEvent(event) {
+      if(!event) {
+        return false;
       }
-      associations[id] = {};
-      $http.defaults.headers.common.Accept = 'application/json';
-      $http.get(associationsApiUrl + id)
-        .success(function(data, status, headers, config) {
-          if(data.devices && data.devices[id]) {
-            associations[id] = data.devices[id];
-          }
-          return callback(id, associations[id]);
-        })
-        .error(function(data, status, headers, config) {
-          return callback(id, associations[id]);
-        });
+      if(!((event.deviceId && event.receiverId && event.rssi && event.time) ||
+           (event.tiraid))) {
+        return false;
+      }
+      return true;
     }
 
 
-    function addReceiverAssociations(tiraid) {
-      for(var cDecoding = 0; cDecoding < tiraid.radioDecodings.length;
-          cDecoding++) {
-        var decoding = tiraid.radioDecodings[cDecoding];
-        var decoderId = decoding.identifier.value;
-        if(associations.hasOwnProperty(decoderId)) {
-          decoding.associations = associations[decoderId];
-        }
-        else {
-          getAssociations(decoderId, function(id, associations) {});
-        }
-      }
+    function updateLegacyEvent(event) {
+      event.deviceId = event.tiraid.identifier.value;
+      event.time = new Date(event.tiraid.timestamp);
+      event.receiverId = event.tiraid.radioDecodings[0].identifier.value;
+      event.rssi = event.tiraid.radioDecodings[0].rssi;
+      return;
+    }
+
+
+    function mergeDeviceEvents(device, event) {
+      device.deviceAssociationIds = event.deviceAssociationIds ||
+                                    device.deviceAssociationIds;
+      device.deviceUrl = event.deviceUrl || device.deviceUrl;
+      device.deviceTags = event.deviceTags || device.deviceTags;
+      device.receiverId = event.receiverId;
+      device.receiverUrl = event.receiverUrl;
+      device.receiverTags = event.receiverTags;
+      device.receiverDirectory = event.receiverDirectory;
+      device.rssi = event.rssi;
+      device.rssiType = event.rssiType;
     }
 
 
@@ -134,6 +119,7 @@ angular.module('reelyactive.beaver', [])
       Socket.on('error', function(err, data) {
       });
     };
+
 
     return {
       listen: handleSocketEvents,

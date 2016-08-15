@@ -48,26 +48,22 @@ angular.module('dashboard', ['btford.socket-io', 'reelyactive.beaver',
   beaver.listen(Socket);
 
   // Handle events pre-processed by beaver.js
-  beaver.on('appearance', function(data) {
-    handleEvent('appearance', data);
+  beaver.on('appearance', function(event) {
+    handleEvent(event);
   });
-  beaver.on('displacement', function(data) {
-    handleEvent('displacement', data);
+  beaver.on('displacement', function(event) {
+    handleEvent(event);
   });
-  beaver.on('keep-alive', function(data) {
-    handleEvent('keep-alive', data);
+  beaver.on('keep-alive', function(event) {
+    handleEvent(event);
   });
-  beaver.on('disappearance', function(data) {
-    handleEvent('disappearance', data);
+  beaver.on('disappearance', function(event) {
+    handleEvent(event);
   });
 
   // Handle an event
-  function handleEvent(type, data) {
-    var length = $scope.events.unshift({
-      type: type,
-      tiraid: data.tiraid,
-      associations: data.associations
-    });
+  function handleEvent(event) {
+    var length = $scope.events.unshift(event);
     if (length > EVENT_HISTORY) {
       $scope.events.pop();
     }
