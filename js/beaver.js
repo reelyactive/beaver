@@ -107,6 +107,17 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Add the given property to the given device
+    function addDeviceProperty(deviceId, property, value) {
+      if(!devices.hasOwnProperty(deviceId) || !property ||
+         (typeof(property) !== 'string')) {
+        return false;
+      }
+      devices[deviceId][property] = value;
+      return true;
+    }
+
+
     // Handle incoming socket events by type
     var handleSocketEvents = function(Socket) {
 
@@ -134,6 +145,7 @@ angular.module('reelyactive.beaver', [])
     return {
       listen: handleSocketEvents,
       on: setEventCallback,
+      addDeviceProperty: addDeviceProperty,
       getDevices: function() { return devices; },
       getStats: function() { return stats; }
     }
