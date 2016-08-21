@@ -14,6 +14,7 @@ angular.module('reelyactive.beaver', [])
     var eventCallbacks = {};
 
 
+    // Use the given event to update the status of the corresponding device
     function updateDevice(type, event) {
       if(!isValidEvent) {
         return;
@@ -43,11 +44,11 @@ angular.module('reelyactive.beaver', [])
         mergeDeviceEvents(devices[deviceId], event);
       }
 
-
       handleEventCallback(type, event);
     }
 
 
+    // Verify if the given event is valid
     function isValidEvent(event) {
       if(!event) {
         return false;
@@ -60,6 +61,7 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Update the given event to the current format
     function updateLegacyEvent(event) {
       event.deviceId = event.tiraid.identifier.value;
       event.time = new Date(event.tiraid.timestamp);
@@ -69,6 +71,7 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Merge any previous device event with the given one
     function mergeDeviceEvents(device, event) {
       device.deviceAssociationIds = event.deviceAssociationIds ||
                                     device.deviceAssociationIds;
@@ -83,6 +86,7 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Handle any registered callbacks for the given event type
     function handleEventCallback(type, device) {
       var callback = eventCallbacks[type];
       if(callback) {
@@ -91,6 +95,7 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Register a callback for the given event type
     var setEventCallback = function(event, callback) {
       if(callback && (typeof callback === 'function')) { 
         eventCallbacks[event] = callback;
@@ -98,6 +103,7 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Handle incoming socket events by type
     var handleSocketEvents = function(Socket) {
 
       Socket.on('appearance', function(event) {
