@@ -25,6 +25,10 @@ angular.module('reelyactive.beaver', [])
       }
 
       var deviceId = event.deviceId;
+      if(!devices.hasOwnProperty(deviceId)) {
+        type = 'appearance';
+      }
+
       if(type === 'appearance') { stats.appearances++; }
       if(type === 'displacement') { stats.displacements++; }
       if(type === 'keep-alive') { stats.keepalives++; }
