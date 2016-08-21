@@ -35,6 +35,7 @@ angular.module('appName', [ 'reelyactive.beaver' ])
 
     $scope.stats = beaver.getStats();
     $scope.devices = beaver.getDevices();
+    $scope.directories = beaver.getDirectories();
 
     beaver.listen( /* socket.io */ );
 
@@ -65,18 +66,42 @@ All the devices currently detected by beaver can be obtained via the getDevices(
 
     {
       "fee150bada55": {
-        "event": "appearance",
-        "time": 1420075425678,
-        "deviceId": "fee150bada55",
-        "deviceAssociationIds": [],
-        "deviceUrl": "http://myjson.info/stories/test",
-        "deviceTags": [ 'test' ],
-        "receiverId": "001bc50940810000",
-        "receiverUrl": "http://sniffypedia.org/Product/reelyActive_RA-R436/",
-        "receiverTags": [ 'test' ],
-        "receiverDirectory": "test",
-        "rssi": 150,
-        "tiraid": { /* Legacy */ }
+        "event": {
+          "event": "appearance",
+          "time": 1420075425678,
+          "deviceId": "fee150bada55",
+          "deviceAssociationIds": [],
+          "deviceUrl": "http://myjson.info/stories/test",
+          "deviceTags": [ 'test' ],
+          "receiverId": "001bc50940810000",
+          "receiverUrl": "http://sniffypedia.org/Product/reelyActive_RA-R436/",
+          "receiverTags": [ 'test' ],
+          "receiverDirectory": "lodge:entrance",
+          "rssi": 150,
+          "tiraid": { /* Legacy */ }
+        }
+      }
+    }
+
+
+Directories
+-----------
+
+All the receiver directories detected by beaver, including the receivers and devices currently at each directory, can be obtained via the getDirectories() function.  For instance, getDirectories() would return an object such as:
+
+    {
+      "lodge:entrance": {
+        "receivers": {
+          "001bc50940810000": {
+            "receiverId": "001bc50940810000",
+            "receiverTags": [ 'test' ],
+            "receiverDirectory": "lodge:entrance",
+            "receiverUrl": "http://sniffypedia.org/Product/reelyActive_RA-R436/"
+          }
+        },
+        "devices": {
+          "fee150bada55": { /* Same as in devices, above */ }
+        }
       }
     }
 
