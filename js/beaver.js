@@ -42,7 +42,7 @@ angular.module('reelyactive.beaver', [])
       }
 
       if(!devices.hasOwnProperty(deviceId)) {
-        devices[deviceId] = event;
+        devices[deviceId] = { event:  event };
       }
       else {
         mergeDeviceEvents(devices[deviceId], event);
@@ -77,16 +77,16 @@ angular.module('reelyactive.beaver', [])
 
     // Merge any previous device event with the given one
     function mergeDeviceEvents(device, event) {
-      device.deviceAssociationIds = event.deviceAssociationIds ||
-                                    device.deviceAssociationIds;
-      device.deviceUrl = event.deviceUrl || device.deviceUrl;
-      device.deviceTags = event.deviceTags || device.deviceTags;
-      device.receiverId = event.receiverId;
-      device.receiverUrl = event.receiverUrl;
-      device.receiverTags = event.receiverTags;
-      device.receiverDirectory = event.receiverDirectory;
-      device.rssi = event.rssi;
-      device.rssiType = event.rssiType;
+      device.event.deviceAssociationIds = event.deviceAssociationIds ||
+                                          device.event.deviceAssociationIds;
+      device.event.deviceUrl = event.deviceUrl || device.event.deviceUrl;
+      device.event.deviceTags = event.deviceTags || device.event.deviceTags;
+      device.event.receiverId = event.receiverId;
+      device.event.receiverUrl = event.receiverUrl;
+      device.event.receiverTags = event.receiverTags;
+      device.event.receiverDirectory = event.receiverDirectory;
+      device.event.rssi = event.rssi;
+      device.event.rssiType = event.rssiType;
     }
 
 
