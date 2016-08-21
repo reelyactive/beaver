@@ -9,6 +9,7 @@ angular.module('reelyactive.beaver', [])
   .factory('beaver', function beaverFactory() {
 
     var devices = {};
+    var directories = {};
     var stats = { appearances: 0, displacements: 0, keepalives: 0,
                   disappearances: 0 };
     var eventCallbacks = {};
@@ -90,6 +91,42 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Update the directories of devices
+    function updateDirectories(event) {
+      var directory = event.receiverDirectory;
+      var deviceId = event.deviceId;
+
+      for(cDirectory in directories) {
+        if((directory === cDirectory) && (event.event !== 'disappearance')) {
+          addReceiver(directory, event);
+          directories[cDirectory].devices[deviceId] = devices[deviceId];
+        }
+        else if(directories[cDirectory].devices.hasOwnProperty(deviceId)) {
+          delete directories[cDirectory].devices[deviceId];
+        }
+      }
+
+      if(!directories.hasOwnProperty(directory)) {
+        directories[directory] = { receivers: {}, devices: {} };
+        addReceiver(directory, event);
+        directories[directory].devices[deviceId] = devices[deviceId];
+      }
+    }
+
+
+    // Add the receiver to the given directory
+    function addReceiver(directory, event) {
+      if(!directories[directory].receivers.hasOwnProperty(event.receiverId)) {
+        directories[directory].receivers[event.receiverId] = {
+          receiverId: event.receiverId,
+          receiverTags: event.receiverTags,
+          receiverDirectory: directory,
+          receiverUrl: event.receiverUrl
+        };
+      }
+    }
+
+
     // Handle any registered callbacks for the given event type
     function handleEventCallback(type, device) {
       var callback = eventCallbacks[type];
@@ -118,23 +155,38 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Add the given property to the given directory
+    function addDirectoryProperty(directory, property, value) {
+      if(!directories.hasOwnProperty(directory) || !property ||
+         (typeof(property) !== 'string')) {
+        return false;
+      }
+      directories[directory][property] = value;
+      return true;
+    }
+
+
     // Handle incoming socket events by type
     var handleSocketEvents = function(Socket) {
 
       Socket.on('appearance', function(event) {
         updateDevice('appearance', event);
+        updateDirectories(event);
       });
 
       Socket.on('displacement', function(event) {
         updateDevice('displacement', event);
+        updateDirectories(event);
       });
 
       Socket.on('keep-alive', function(event) {
         updateDevice('keep-alive', event);
+        updateDirectories(event);
       });
 
       Socket.on('disappearance', function(event) {
         updateDevice('disappearance', event);
+        updateDirectories(event);
       });
 
       Socket.on('error', function(err, data) {
@@ -146,7 +198,9 @@ angular.module('reelyactive.beaver', [])
       listen: handleSocketEvents,
       on: setEventCallback,
       addDeviceProperty: addDeviceProperty,
+      addDirectoryProperty: addDirectoryProperty,
       getDevices: function() { return devices; },
+      getDirectories: function() { return directories; },
       getStats: function() { return stats; }
     }
   });
