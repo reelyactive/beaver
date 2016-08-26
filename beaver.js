@@ -4,6 +4,9 @@
  */
 
 
+DISAPPEARANCE_MILLISECONDS = 15000;
+
+
 angular.module('reelyactive.beaver', [])
 
   .factory('beaver', function beaverFactory() {
@@ -78,6 +81,8 @@ angular.module('reelyactive.beaver', [])
 
     // Merge any previous device event with the given one
     function mergeDeviceEvents(device, event) {
+      device.event.event = event.event;
+      device.event.time = event.time;
       device.event.deviceAssociationIds = event.deviceAssociationIds ||
                                           device.event.deviceAssociationIds;
       device.event.deviceUrl = event.deviceUrl || device.event.deviceUrl;
@@ -166,6 +171,20 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Purge any stale devices as disappearances
+    function purgeDisappearances() {
+      var currentTime = new Date();
+      for(cDevice in devices) {
+        if((currentTime - devices[cDevice].event.time) >
+           DISAPPEARANCE_MILLISECONDS) {
+          handleEventCallback('disappearance', devices[cDevice].event);
+          delete devices[cDevice];
+          stats.disappearances++;
+        }
+      }
+    }
+
+
     // Handle incoming socket events by type
     var handleSocketEvents = function(Socket) {
 
@@ -191,6 +210,8 @@ angular.module('reelyactive.beaver', [])
 
       Socket.on('error', function(err, data) {
       });
+
+      setInterval(purgeDisappearances, DISAPPEARANCE_MILLISECONDS);
     };
 
 
