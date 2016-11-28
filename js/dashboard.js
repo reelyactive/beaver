@@ -5,7 +5,7 @@
 
 
 // Constant definitions
-DEFAULT_SOCKET_URL = 'http://www.hyperlocalcontext.com/notman';
+DEFAULT_SOCKET_URL = 'http://www.hyperlocalcontext.com/reelyactive';
 DEFAULT_ASSOCIATIONS_URL = 'http://www.hyperlocalcontext.com/associations/';
 EVENT_HISTORY = 4;
 
