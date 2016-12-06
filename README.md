@@ -37,7 +37,8 @@ angular.module('appName', [ 'reelyactive.beaver' ])
     $scope.devices = beaver.getDevices();
     $scope.directories = beaver.getDirectories();
 
-    beaver.listen( /* socket.io */ );
+    beaver.listen( /* socket.io (see note below) */ );
+    beaver.poll( /* Contextual API URL (see note below) */ );
 
     beaver.on('appearance', function(event) {
       console.log(event.deviceId + ' appeared on ' + event.receiverId);
