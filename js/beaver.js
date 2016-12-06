@@ -175,7 +175,7 @@ angular.module('reelyactive.beaver', [])
 
     // Purge any stale devices as disappearances
     function purgeDisappearances() {
-      var currentTime = new Date();
+      var currentTime = new Date().getTime();
       for(cDevice in devices) {
         if((currentTime - devices[cDevice].event.time) >
            DISAPPEARANCE_MILLISECONDS) {
