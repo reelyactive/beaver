@@ -1,14 +1,14 @@
 /**
- * Copyright reelyActive 2016
+ * Copyright reelyActive 2016-2017
  * We believe in an open Internet of Things
  */
 
 
 // Constant definitions
-DEFAULT_SOCKET_URL = 'http://www.hyperlocalcontext.com/reelyactive';
-DEFAULT_POLLING_URL = 'http://www.hyperlocalcontext.com/contextat/directory/notman';
+DEFAULT_SOCKET_URL = 'https://www.hyperlocalcontext.com/reelyactive';
+DEFAULT_POLLING_URL = 'https://www.hyperlocalcontext.com/contextat/directory/notman';
 DEFAULT_POLLING_MILLISECONDS = 5000;
-DEFAULT_ASSOCIATIONS_URL = 'http://www.hyperlocalcontext.com/associations/';
+DEFAULT_ASSOCIATIONS_URL = 'https://www.hyperlocalcontext.com/associations/';
 EVENT_HISTORY = 4;
 
 
