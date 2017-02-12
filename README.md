@@ -1,7 +1,7 @@
 beaver
 ======
 
-Collects the real-time state of devices from reelyActive APIs via websockets or polling.  See it live at [reelyactive.github.io/beaver](http://reelyactive.github.io/beaver/).
+Collects the real-time state of devices from reelyActive APIs via websockets or polling.  See it live at [reelyactive.github.io/beaver](https://reelyactive.github.io/beaver/).
 
 
 License
