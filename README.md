@@ -10,7 +10,7 @@ In the scheme of Things (pun intended)
 The __beaver.js__, [cormorant.js](https://github.com/reelyactive/cormorant) and [cuttlefish.js](https://github.com/reelyactive/cuttlefish) modules work together as a unit.  See our [dashboard-template-angular](https://github.com/reelyactive/dashboard-template-angular) for a minimal implementation.
 
 
-![beaver logo](http://reelyactive.github.io/beaver/images/beaver-bubble.png)
+![beaver logo](https://reelyactive.github.io/beaver/images/beaver-bubble.png)
 
 
 What's in a name?
@@ -57,7 +57,7 @@ angular.module('appName', [ 'reelyactive.beaver' ])
 
 Include the above in a .js file, and then source both that file and beaver.js in an HTML file.  Upon running the HTML file, the real-time events will be output to the console.
 
-Instructions on how to listen on websockets or poll an API to come soon - see [reelyactive.github.io/beaver](http://reelyactive.github.io/beaver/) for a working example with code in the [gh-pages branch](https://github.com/reelyactive/beaver/tree/gh-pages).
+Instructions on how to listen on websockets or poll an API to come soon - see [reelyactive.github.io/beaver](https://reelyactive.github.io/beaver/) for a working example with code in the [gh-pages branch](https://github.com/reelyactive/beaver/tree/gh-pages).
 
 
 Devices
