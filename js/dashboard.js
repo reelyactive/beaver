@@ -18,10 +18,8 @@ EVENT_HISTORY = 4;
  * angular module.  The only external dependencies are:
  * - beaver (reelyActive)
  * - socket.io (btford)
- * - ngSanitize (angular)
  */
-angular.module('dashboard', ['btford.socket-io', 'reelyactive.beaver',
-                             'ngSanitize'])
+angular.module('dashboard', ['btford.socket-io', 'reelyactive.beaver'])
 
 
 /**
