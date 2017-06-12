@@ -46,7 +46,7 @@ angular.module('dashboard', ['btford.socket-io', 'reelyactive.beaver'])
 
   // beaver.js can listen on the websockets OR poll for events
   //   (unlikely you'd want to do both, but shown here as an example)
-  beaver.listen(Socket);
+  beaver.listen(Socket, { disappearanceMilliseconds: 20000 });
   beaver.poll(DEFAULT_POLLING_URL, DEFAULT_POLLING_MILLISECONDS);
 
   // Handle events pre-processed by beaver.js
