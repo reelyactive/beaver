@@ -215,7 +215,8 @@ angular.module('reelyactive.beaver', [])
       Socket.on('error', function(err, data) {
       });
 
-      setInterval(purgeDisappearances, disappearanceMilliseconds);
+      var intervalMilliseconds = Math.round(disappearanceMilliseconds / 2);
+      setInterval(purgeDisappearances, intervalMilliseconds);
     };
 
 
