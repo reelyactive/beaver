@@ -4,7 +4,7 @@
  */
 
 
-DISAPPEARANCE_MILLISECONDS = 15000;
+DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 DEFAULT_POLLING_MILLISECONDS = 5000;
 
 
@@ -18,6 +18,7 @@ angular.module('reelyactive.beaver', [])
                   disappearances: 0 };
     var eventCallbacks = {};
     var pollingApiUrl;
+    var disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
 
 
     // Use the given event to update the status of the corresponding device
@@ -177,8 +178,8 @@ angular.module('reelyactive.beaver', [])
     function purgeDisappearances() {
       var currentTime = new Date().getTime();
       for(cDevice in devices) {
-        if((currentTime - devices[cDevice].event.time) >
-           DISAPPEARANCE_MILLISECONDS) {
+        var stalenessMilliseconds = currentTime - devices[cDevice].event.time;
+        if(stalenessMilliseconds > disappearanceMilliseconds) {
           handleEventCallback('disappearance', devices[cDevice].event);
           delete devices[cDevice];
           stats.disappearances++;
@@ -188,7 +189,8 @@ angular.module('reelyactive.beaver', [])
 
 
     // Handle incoming socket events by type
-    var handleSocketEvents = function(Socket) {
+    var handleSocketEvents = function(Socket, options) {
+      handleOptions(options);
 
       Socket.on('appearance', function(event) {
         updateDevice('appearance', event);
@@ -213,7 +215,8 @@ angular.module('reelyactive.beaver', [])
       Socket.on('error', function(err, data) {
       });
 
-      setInterval(purgeDisappearances, DISAPPEARANCE_MILLISECONDS);
+      var intervalMilliseconds = Math.round(disappearanceMilliseconds / 2);
+      setInterval(purgeDisappearances, intervalMilliseconds);
     };
 
 
@@ -272,10 +275,12 @@ angular.module('reelyactive.beaver', [])
 
 
     // Initialise polling of API
-    var initPolling = function(url, interval) {
+    var initPolling = function(url, interval, options) {
       if(!url || (typeof url !== 'string')) {
         return;
       }
+      handleOptions(options);
+
       $http.defaults.headers.common.Accept = 'application/json';
       interval = interval || DEFAULT_POLLING_MILLISECONDS;
       pollingApiUrl = url;
@@ -283,6 +288,14 @@ angular.module('reelyactive.beaver', [])
       queryApi();
       setInterval(queryApi, interval);
     };
+
+
+    // Handle options provided when listening/polling, if any
+    function handleOptions(options) {
+      options = options || {};
+      disappearanceMilliseconds = options.disappearanceMilliseconds ||
+                                  DEFAULT_DISAPPEARANCE_MILLISECONDS;
+    }
 
 
     return {
