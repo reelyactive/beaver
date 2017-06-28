@@ -5,7 +5,7 @@
 
 
 // Constant definitions
-DEFAULT_SOCKET_URL = 'https://www.hyperlocalcontext.com/reelyactive';
+DEFAULT_SOCKET_URL = 'https://www.hyperlocalcontext.com/';
 DEFAULT_POLLING_URL = 'https://www.hyperlocalcontext.com/contextat/directory/notman';
 DEFAULT_POLLING_MILLISECONDS = 5000;
 DEFAULT_ASSOCIATIONS_URL = 'https://www.hyperlocalcontext.com/associations/';
