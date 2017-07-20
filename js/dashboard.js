@@ -17,27 +17,16 @@ EVENT_HISTORY = 4;
  * All of the JavaScript specific to the dashboard is contained inside this
  * angular module.  The only external dependencies are:
  * - beaver (reelyActive)
- * - socket.io (btford)
  */
-angular.module('dashboard', ['btford.socket-io', 'reelyactive.beaver'])
-
-
-/**
- * Socket Factory
- * Creates the websocket connection to the given URL using socket.io.
- */
-.factory('Socket', function(socketFactory) {
-  return socketFactory({
-    ioSocket: io.connect(DEFAULT_SOCKET_URL)
-  });
-})
+angular.module('dashboard', ['reelyactive.beaver'])
 
 
 /**
  * DashCtrl Controller
  * Handles the manipulation of all variables accessed by the HTML view.
  */
-.controller('DashCtrl', function($scope, Socket, beaver) {
+.controller('DashCtrl', function($scope, beaver) {
+  var socket = io.connect(DEFAULT_SOCKET_URL);
 
   // Variables accessible in the HTML scope
   $scope.devices = beaver.getDevices();
@@ -46,7 +35,7 @@ angular.module('dashboard', ['btford.socket-io', 'reelyactive.beaver'])
 
   // beaver.js can listen on the websockets OR poll for events
   //   (unlikely you'd want to do both, but shown here as an example)
-  beaver.listen(Socket, { disappearanceMilliseconds: 20000 });
+  beaver.listen(socket, { disappearanceMilliseconds: 20000 });
   beaver.poll(DEFAULT_POLLING_URL, DEFAULT_POLLING_MILLISECONDS);
 
   // Handle events pre-processed by beaver.js
