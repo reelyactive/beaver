@@ -38,7 +38,7 @@
       <!----- BEGIN CONTENT SECTION ----------------------------------------->
       <div class="container-fluid">
         <div class="row">
-          <div class="col-md-3">
+          <div class="col-md-4">
             <!----- STATISTICS ---------------------------------------------->
             <!-- You have access to a variable called stats which has four -->
             <!-- properties: appearances, displacements, keepalives and    -->
@@ -71,8 +71,30 @@
                 </tr>
               </tbody>
             </table>
+            <!----- DIRECTORIES --------------------------------------------->
+            <!-- You have access to a variable called directories which    -->
+            <!-- has as properties all detected receiverDirectory names.   -->
+            <!--------------------------------------------------------------->
+            <table class="table">
+              <caption> TOP 3 DIRECTORIES </caption>
+              <thead>
+                <tr>
+                  <th> Directory </th>
+                  <th> Receivers </th>
+                  <th> Devices </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="directory in directories |
+                               orderBy: '-deviceCount' | limitTo: 3">
+                  <td> {{directory.id}} </td>
+                  <td> {{directory.receiverCount}} </td>
+                  <td> {{directory.deviceCount}} </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div class="col-md-9">
+          <div class="col-md-8">
             <!----- EVENTS -------------------------------------------------->
             <!-- In dashboard.js, we created an array called events which  -->
             <!-- includes the n most recent events.  Each event has three  -->
