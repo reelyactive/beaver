@@ -6,6 +6,8 @@
 
 DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 DEFAULT_POLLING_MILLISECONDS = 5000;
+DEFAULT_MERGE_EVENTS = false;
+DEFAULT_MAINTAIN_DIRECTORIES = false;
 
 
 angular.module('reelyactive.beaver', [])
@@ -19,6 +21,8 @@ angular.module('reelyactive.beaver', [])
     var eventCallbacks = {};
     var pollingApiUrl;
     var disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
+    var mergeEvents = DEFAULT_MERGE_EVENTS;
+    var maintainDirectories = DEFAULT_MAINTAIN_DIRECTORIES;
 
 
     // Use the given event to update the status of the corresponding device
@@ -48,11 +52,11 @@ angular.module('reelyactive.beaver', [])
         return;
       }
 
-      if(!devices.hasOwnProperty(deviceId)) {
-        devices[deviceId] = { event:  event };
+      if(mergeEvents && devices.hasOwnProperty(deviceId)) {
+        mergeDeviceEvents(devices[deviceId], event);
       }
       else {
-        mergeDeviceEvents(devices[deviceId], event);
+        devices[deviceId] = { event:  event };
       }
 
       handleEventCallback(type, event);
@@ -193,23 +197,19 @@ angular.module('reelyactive.beaver', [])
       handleOptions(options);
 
       Socket.on('appearance', function(event) {
-        updateDevice('appearance', event);
-        updateDirectories(event);
+        handleEvent('appearance', event);
       });
 
       Socket.on('displacement', function(event) {
-        updateDevice('displacement', event);
-        updateDirectories(event);
+        handleEvent('displacement', event);
       });
 
       Socket.on('keep-alive', function(event) {
-        updateDevice('keep-alive', event);
-        updateDirectories(event);
+        handleEvent('keep-alive', event);
       });
 
       Socket.on('disappearance', function(event) {
-        updateDevice('disappearance', event);
-        updateDirectories(event);
+        handleEvent('disappearance', event);
       });
 
       Socket.on('error', function(err, data) {
@@ -218,6 +218,15 @@ angular.module('reelyactive.beaver', [])
       var intervalMilliseconds = Math.round(disappearanceMilliseconds / 2);
       setInterval(purgeDisappearances, intervalMilliseconds);
     };
+
+
+    // Handle the given event
+    function handleEvent(type, event) {
+      updateDevice(type, event);
+      if(maintainDirectories) {
+        updateDirectories(event);
+      }
+    }
 
 
     // Update the given device from the list of polled devices
@@ -294,7 +303,9 @@ angular.module('reelyactive.beaver', [])
     function handleOptions(options) {
       options = options || {};
       disappearanceMilliseconds = options.disappearanceMilliseconds ||
-                                  DEFAULT_DISAPPEARANCE_MILLISECONDS;
+                                  disappearanceMilliseconds;
+      mergeEvents = options.mergeEvents || mergeEvents;
+      maintainDirectories = options.maintainDirectories || maintainDirectories;
     }
 
 
