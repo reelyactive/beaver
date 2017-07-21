@@ -185,6 +185,15 @@ angular.module('reelyactive.beaver', [])
           handleEventCallback('disappearance', devices[cDevice].event);
           delete devices[cDevice];
           stats.disappearances++;
+
+          if(maintainDirectories) {
+            for(cDirectory in directories) {
+              var directory = directories[cDirectory];
+              if(directory.devices.hasOwnProperty(cDevice)) {
+                delete directory.devices[cDevice];
+              }
+            }
+          }
         }
       }
     }
