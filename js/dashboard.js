@@ -11,6 +11,7 @@ DEFAULT_POLLING_MILLISECONDS = 5000;
 DEFAULT_BEAVER_OPTIONS = {
   disappearanceMilliseconds: 20000,
   mergeEvents: false,
+  mergeEventProperties: [ 'event', 'time', 'receiverId', 'rssi' ],
   maintainDirectories: true
 };
 DEFAULT_DIRECTORY_ID = 'Unspecified';
