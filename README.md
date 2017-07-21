@@ -1,13 +1,13 @@
 beaver
 ======
 
-Collects the real-time state of devices from reelyActive APIs via websockets or polling. We believe in an open Internet of Things.
+Collects the real-time stream of events from reelyActive APIs via websockets or polling.  We believe in an open Internet of Things.
 
 
 In the scheme of Things (pun intended)
 --------------------------------------
 
-The __beaver.js__, [cormorant.js](https://github.com/reelyactive/cormorant) and [cuttlefish.js](https://github.com/reelyactive/cuttlefish) modules work together as a unit.  See our [dashboard-template-angular](https://github.com/reelyactive/dashboard-template-angular) for a minimal implementation.
+The __beaver.js__, [cormorant.js](https://github.com/reelyactive/cormorant) and [cuttlefish.js](https://github.com/reelyactive/cuttlefish) modules work together as a unit.  See our [dashboard-template-angular](https://github.com/reelyactive/dashboard-template-angular) for a typical implementation.
 
 
 ![beaver logo](https://reelyactive.github.io/beaver/images/beaver-bubble.png)
@@ -33,54 +33,52 @@ angular.module('appName', [ 'reelyactive.beaver' ])
 
   .controller('EventsCtrl', function($scope, beaver) {
 
+    // Include socket.io.js in your HTML in order to connect to websockets
+    var socket = io.connect('https://www.hyperlocalcontext.com/');
+
     $scope.stats = beaver.getStats();
     $scope.devices = beaver.getDevices();
     $scope.directories = beaver.getDirectories();
 
-    beaver.listen( /* socket.io (see note below) */ );
-    beaver.poll( /* Contextual API URL (see note below) */ );
+    // Listen for real-time events via websocket
+    beaver.listen(socket);
 
-    beaver.on('appearance', function(event) {
-      console.log(event.deviceId + ' appeared on ' + event.receiverId);
-    });
-    beaver.on('keep-alive', function(event) {
-      console.log(event.deviceId + ' is staying alive');
-    });
-    beaver.on('displacement', function(event) {
-      console.log(event.deviceId + ' displaced to ' + event.receiverId);
-    });
-    beaver.on('disappearance', function(event) {
-      console.log(event.deviceId + ' disappeared from ' + event.receiverId);
-    });
+    // Or, alternatively, periodically poll a REST API
+    beaver.poll('https://www.hyperlocalcontext.com/contextat/directory/notman');
+
+    beaver.on('appearance', handleEvent);
+    beaver.on('displacement', handleEvent);
+    beaver.on('keep-alive', handleEvent);
+    beaver.on('disappearance', handleEvent);
+
+    function handleEvent(event) {
+      console.log(event.event + ' of ' + event.deviceId + ' at ' +
+                  event.receiverId);
+    }
   });
 ```
 
-Include the above in a .js file, and then source both that file and beaver.js in an HTML file.  Upon running the HTML file, the real-time events will be output to the console.
+See [reelyactive.github.io/beaver](https://reelyactive.github.io/beaver/) for a simple working example with code in the [gh-pages branch](https://github.com/reelyactive/beaver/tree/gh-pages).
 
-Instructions on how to listen on websockets or poll an API to come soon - see [reelyactive.github.io/beaver](https://reelyactive.github.io/beaver/) for a working example with code in the [gh-pages branch](https://github.com/reelyactive/beaver/tree/gh-pages).
+
+Events
+------
+
+An event is the consequence of an interaction between a radio-identifiable device and receiver infrastructure. The event is the core data structure used in the reelyActive platform.  Our [Event Overview](https://reelyactive.github.io/event-overview.html) page provides the complete reference.
+
 
 
 Devices
 -------
 
-All the devices currently detected by beaver can be obtained via the getDevices() function.  For instance, getDevices() would return an object such as:
+All the devices currently detected by beaver can be obtained via the getDevices() function.  For instance, getDevices() would return an object containing all the visible devices and the most recent event of each such as:
 
     {
       "fee150bada55": {
-        "event": {
-          "event": "appearance",
-          "time": 1420075425678,
-          "deviceId": "fee150bada55",
-          "deviceAssociationIds": [],
-          "deviceUrl": "http://myjson.info/stories/test",
-          "deviceTags": [ 'test' ],
-          "receiverId": "001bc50940810000",
-          "receiverUrl": "http://sniffypedia.org/Product/reelyActive_RA-R436/",
-          "receiverTags": [ 'test' ],
-          "receiverDirectory": "lodge:entrance",
-          "rssi": 150,
-          "tiraid": { /* Legacy */ }
-        }
+        "event": { /* ... */ }
+      },
+      "001bc50940100000": {
+        "event": { /* ... */ }
       }
     }
 
@@ -119,6 +117,36 @@ All the statistics collected by beaver can be obtained via the getStats() functi
       "disappearances": 68
     }
 
+
+Options
+-------
+
+The following options are supported (those shown are the defaults):
+
+    {
+      disappearanceMilliseconds: 15000,
+      mergeEvents: false,
+      mergeEventProperties: [ 'event', 'time', 'receiverId', 'rssi' ],
+      maintainDirectories: false
+    }
+
+### disappearanceMilliseconds
+
+The maximum staleness of a device's most recent event before that device is considered to have disappeared.
+
+### mergeEvents
+
+When set to _false_, beaver replaces a device's previous event object with the new event object.  When set to _true_, beaver will instead iterate over the event object properties, updating only those which have changed.
+
+Depending on the application and number of events, there may be a measurable performance difference between the two options.
+
+### mergeEventProperties
+
+The list of properties to consider when merging events (see above).  Only the specified properties will be updated.  Note that any unspecified properties are likely to become stale and should therefore be ignored by the application.
+
+### maintainDirectories
+
+When set to _false_, beaver will not update the directories object returned by the getDirectories() function.  Eliminate needless computation by enable this option only if using the directory functionality.
 
 
 License
