@@ -7,6 +7,7 @@
 DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 DEFAULT_POLLING_MILLISECONDS = 5000;
 DEFAULT_MERGE_EVENTS = false;
+DEFAULT_MERGE_EVENT_PROPERTIES = [ 'event', 'time', 'receiverId', 'rssi' ];
 DEFAULT_MAINTAIN_DIRECTORIES = false;
 
 
@@ -22,6 +23,7 @@ angular.module('reelyactive.beaver', [])
     var pollingApiUrl;
     var disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
     var mergeEvents = DEFAULT_MERGE_EVENTS;
+    var mergeEventProperties = DEFAULT_MERGE_EVENT_PROPERTIES;
     var maintainDirectories = DEFAULT_MAINTAIN_DIRECTORIES;
 
 
@@ -86,20 +88,16 @@ angular.module('reelyactive.beaver', [])
     }
 
 
-    // Merge any previous device event with the given one
+    // Merge the updated properties of the given event with the previous event
     function mergeDeviceEvents(device, event) {
-      device.event.event = event.event;
-      device.event.time = event.time;
-      device.event.deviceAssociationIds = event.deviceAssociationIds ||
-                                          device.event.deviceAssociationIds;
-      device.event.deviceUrl = event.deviceUrl || device.event.deviceUrl;
-      device.event.deviceTags = event.deviceTags || device.event.deviceTags;
-      device.event.receiverId = event.receiverId;
-      device.event.receiverUrl = event.receiverUrl;
-      device.event.receiverTags = event.receiverTags;
-      device.event.receiverDirectory = event.receiverDirectory;
-      device.event.rssi = event.rssi;
-      device.event.rssiType = event.rssiType;
+      for(var cProperty = 0; cProperty < mergeEventProperties.length;
+          cProperty++) {
+        var property = mergeEventProperties[cProperty];
+        if(event.hasOwnProperty(property) &&
+           (device.event[property] !== event[property])) {
+          device.event[property] = event[property];
+        }
+      }
     }
 
 
@@ -305,6 +303,8 @@ angular.module('reelyactive.beaver', [])
       disappearanceMilliseconds = options.disappearanceMilliseconds ||
                                   disappearanceMilliseconds;
       mergeEvents = options.mergeEvents || mergeEvents;
+      mergeEventProperties = options.mergeEventProperties ||
+                             mergeEventProperties;
       maintainDirectories = options.maintainDirectories || maintainDirectories;
     }
 
