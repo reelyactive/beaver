@@ -130,6 +130,11 @@ The following options are supported (those shown are the defaults):
       maintainDirectories: false
     }
 
+Include the options, if any, in the listen() and poll() functions:
+
+    beaver.listen(socket, options);
+    beaver.poll(url, options);
+
 ### disappearanceMilliseconds
 
 The maximum staleness of a device's most recent event before that device is considered to have disappeared.
