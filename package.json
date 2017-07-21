@@ -1,8 +1,8 @@
 {
   "name": "angular-beaver",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://reelyactive.github.io/beaver/",
-  "description": "Collects the real-time state of devices from reelyActive APIs via websockets or polling. We believe in an open Internet of Things.",
+  "description": "Collects the real-time stream of events from reelyActive APIs via websockets or polling. We believe in an open Internet of Things.",
   "keywords": [
     "reelyActive",
     "IoT",
