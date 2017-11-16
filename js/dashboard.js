@@ -15,7 +15,7 @@ DEFAULT_BEAVER_OPTIONS = {
   maintainDirectories: true
 };
 DEFAULT_DIRECTORY_ID = 'Unspecified';
-DEFAULT_SAMPLE_PERIOD = 2000;
+DEFAULT_SAMPLE_PERIOD = 1000;
 EVENT_HISTORY = 10;
 
 
@@ -48,6 +48,9 @@ angular.module('dashboard', ['reelyactive.beaver'])
   beaver.poll(DEFAULT_POLLING_URL, DEFAULT_POLLING_MILLISECONDS,
               DEFAULT_BEAVER_OPTIONS);
 
+  // Sample the state of the directories periodically
+  sampleDirectories(DEFAULT_SAMPLE_PERIOD);
+
   // Handle events pre-processed by beaver.js
   beaver.on('appearance', handleEvent);
   beaver.on('displacement', handleEvent);
@@ -63,7 +66,7 @@ angular.module('dashboard', ['reelyactive.beaver'])
   }
 
   // Sample the current state of the directories
-  function sampleDirectories() {
+  function sampleDirectories(period) {
     var directoryArray = [];
 
     for(id in directories) {
@@ -80,7 +83,13 @@ angular.module('dashboard', ['reelyactive.beaver'])
     }
 
     $scope.directories = directoryArray;
+
+    // This is the suggested way to implement an optionally periodic function.
+    // The subsequent execution is scheduled only when the current execution
+    // is complete, and $apply is automatically invoked.
+    if(period) {
+      $interval(sampleDirectories, period, 1, true, period);
+    }
   }
 
-  $interval(sampleDirectories, DEFAULT_SAMPLE_PERIOD);
 });
