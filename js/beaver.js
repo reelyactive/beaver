@@ -42,7 +42,19 @@ angular.module('reelyactive.beaver', [])
         type = 'appearance';
       }
 
-      if(type === 'appearance') { stats.appearances++; }
+      if(type === 'appearance') {
+        if(!devices.hasOwnProperty(deviceId)) {
+          stats.appearances++;
+        }
+        else if(devices[deviceId].event.receiverId === event.receiverId) {
+          type = 'keep-alive';   // appearance is actually keep-alive
+          event.type = type;     //   because beaver.js never made it disappear
+        }
+        else {
+          type = 'displacement'; // appearance is actually displacement
+          event.type = type;     //   because beaver.js never made it disappear
+        }
+      }
       if(type === 'displacement') { stats.displacements++; }
       if(type === 'keep-alive') { stats.keepalives++; }
       if(type === 'disappearance') {
