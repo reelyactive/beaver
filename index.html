@@ -69,6 +69,14 @@
                   <td> disappearances </td>
                   <td> {{stats.disappearances}} </td>
                 </tr>
+                <tr>
+                  <td> passedFilters </td>
+                  <td> {{stats.passedFilters}} </td>
+                </tr>
+                <tr>
+                  <td> failedFilters </td>
+                  <td> {{stats.failedFilters}} </td>
+                </tr>
               </tbody>
             </table>
             <!----- DIRECTORIES --------------------------------------------->
@@ -110,6 +118,7 @@
                   <th> RSSI </th>
                   <th> Timestamp </th>
                   <th> Ass. </th>
+                  <th> Filter </th>
                 </tr>
               </thead>
               <tbody>
@@ -126,6 +135,9 @@
                   <td> <a ng-href="{{event.deviceUrl}}"
                           ng-show="{{event.deviceUrl !== null}}"
                           target="_blank"> URL </a> </td>
+                  <td ng-class="event.passedFilters ? 'success' : 'danger'">
+                    &nbsp;
+                  </td>
                 </tr>
               </tbody>
             </table>
