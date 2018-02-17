@@ -35,16 +35,18 @@ angular.module('appName', [ 'reelyactive.beaver' ])
 
     // Include socket.io.js in your HTML in order to connect to websockets
     var socket = io.connect('https://www.hyperlocalcontext.com/');
+    var options = { /* See Options section below */ };
 
     $scope.stats = beaver.getStats();
     $scope.devices = beaver.getDevices();
     $scope.directories = beaver.getDirectories();
 
     // Listen for real-time events via websocket
-    beaver.listen(socket);
+    beaver.listen(socket, options);
 
     // Or, alternatively, periodically poll a REST API
-    beaver.poll('https://www.hyperlocalcontext.com/contextat/directory/notman');
+    beaver.poll('https://www.hyperlocalcontext.com/contextat/directory/notman',
+                5000, options);
 
     beaver.on('appearance', handleEvent);
     beaver.on('displacement', handleEvent);
@@ -114,7 +116,9 @@ All the statistics collected by beaver can be obtained via the getStats() functi
       "appearances": 69,
       "displacements": 7,
       "keepalives": 1999,
-      "disappearances": 68
+      "disappearances": 68,
+      "passedFilters": 501,
+      "failedFilters": 1642
     }
 
 
@@ -127,7 +131,9 @@ The following options are supported (those shown are the defaults):
       disappearanceMilliseconds: 15000,
       mergeEvents: false,
       mergeEventProperties: [ 'event', 'time', 'receiverId', 'rssi' ],
-      maintainDirectories: false
+      maintainDirectories: false,
+      observeOnlyFiltered: false,
+      filters: { /* See below */ }
     }
 
 Include the options, if any, in the listen() and poll() functions:
@@ -151,7 +157,29 @@ The list of properties to consider when merging events (see above).  Only the sp
 
 ### maintainDirectories
 
-When set to _false_, beaver will not update the directories object returned by the getDirectories() function.  Eliminate needless computation by enable this option only if using the directory functionality.
+When set to _false_, beaver will not update the directories object returned by the getDirectories() function.  Eliminate needless computation by disabling this option should directory functionality be irrelevant.
+
+### observeOnlyFiltered
+
+When set to _true_, beaver will ignore events that do not pass the filter criteria.  Specifically, beaver will not emit such events, nor will it include the concerned devices among the observed devices and directories.  Stats are not affected by this setting.
+
+Enable this option when filters are relevant as it can significantly reduce memory footprint and computation load.
+
+
+Filters
+-------
+
+The following filters are supported (those shown are the defaults):
+
+    {
+      minSessionDuration: 0,
+      maxSessionDuration: 9007199254740991,
+      isPerson: [ 'yes', 'probably' ],
+      whitelistTags: [ 'track' ],
+      blacklistTags: [ 'ignore' ]
+    }
+
+The setFilters(filters) function allows the filters to be updated at any time.
 
 
 License
@@ -159,7 +187,7 @@ License
 
 MIT License
 
-Copyright (c) 2016-2017 reelyActive
+Copyright (c) 2016-2018 reelyActive
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
