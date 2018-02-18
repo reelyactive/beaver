@@ -139,7 +139,7 @@ The following options are supported (those shown are the defaults):
                                'rssi', 'receiverId', 'receiverTags',
                                'receiverUrl', 'receiverDirectory',
                                'position', 'sessionId',
-                               'sessionDuration', 'passedFilters' ];
+                               'sessionDuration', 'passedFilters' ],
       maintainDirectories: false,
       observeOnlyFiltered: false,
       filters: { /* See below */ }
