@@ -7,12 +7,21 @@
 DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 DEFAULT_POLLING_MILLISECONDS = 5000;
 DEFAULT_MERGE_EVENTS = false;
-DEFAULT_MERGE_EVENT_PROPERTIES = [ 'event', 'time', 'receiverId', 'rssi' ];
+DEFAULT_MERGE_EVENT_PROPERTIES = [ 'event', 'time', 'rssi', 'receiverId', 
+                                   'receiverDirectory', 'receiverUrl',
+                                   'position', 'sessionDuration',
+                                   'passedFilters' ];
+DEFAULT_RETAIN_EVENT_PROPERTIES = [ 'event', 'time', 'deviceId', 'deviceTags',
+                                    'deviceUrl', 'deviceAssociationIds',
+                                    'rssi', 'receiverId', 'receiverTags',
+                                    'receiverUrl', 'receiverDirectory',
+                                    'position', 'sessionId',
+                                    'sessionDuration', 'passedFilters' ];
 DEFAULT_MAINTAIN_DIRECTORIES = false;
 DEFAULT_OBSERVE_ONLY_FILTERED = false;
 DEFAULT_MIN_SESSION_DURATION_FILTER = 0;
 DEFAULT_MAX_SESSION_DURATION_FILTER = Number.MAX_SAFE_INTEGER;
-DEFAULT_IS_PERSON_FILTER = [ 'yes', 'probably' ];
+DEFAULT_IS_PERSON_FILTER = [ 'yes', 'possibly' ];
 DEFAULT_WHITELIST_TAGS_FILTER = [ 'track' ];
 DEFAULT_BLACKLIST_TAGS_FILTER = [ 'ignore' ];
 
@@ -30,6 +39,7 @@ angular.module('reelyactive.beaver', [])
     var disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
     var mergeEvents = DEFAULT_MERGE_EVENTS;
     var mergeEventProperties = DEFAULT_MERGE_EVENT_PROPERTIES;
+    var retainEventProperties = DEFAULT_RETAIN_EVENT_PROPERTIES;
     var maintainDirectories = DEFAULT_MAINTAIN_DIRECTORIES;
     var observeOnlyFiltered = DEFAULT_OBSERVE_ONLY_FILTERED;
     var minSessionDurationFilter = DEFAULT_MIN_SESSION_DURATION_FILTER;
@@ -99,6 +109,7 @@ angular.module('reelyactive.beaver', [])
         mergeDeviceEvents(devices[deviceId], event);
       }
       else {
+        trimEventProperties(event);
         devices[deviceId] = { event:  event };
       }
 
@@ -198,6 +209,18 @@ angular.module('reelyactive.beaver', [])
         if(event.hasOwnProperty(property) &&
            (device.event[property] !== event[property])) {
           device.event[property] = event[property];
+        }
+      }
+    }
+
+
+    // Trim the unretained properties from the given event
+    function trimEventProperties(event) {
+      for(property in event) {
+        if(retainEventProperties.indexOf(property) < 0) {
+          delete event[property];
+        }
+        else {
         }
       }
     }
@@ -432,6 +455,8 @@ angular.module('reelyactive.beaver', [])
       mergeEvents = options.mergeEvents || mergeEvents;
       mergeEventProperties = options.mergeEventProperties ||
                              mergeEventProperties;
+      retainEventProperties = options.retainEventProperties ||
+                              retainEventProperties;
       maintainDirectories = options.maintainDirectories || maintainDirectories;
       observeOnlyFiltered = options.observeOnlyFiltered || observeOnlyFiltered;
       setFilters(options.filters);
