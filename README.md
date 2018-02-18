@@ -130,7 +130,16 @@ The following options are supported (those shown are the defaults):
     {
       disappearanceMilliseconds: 15000,
       mergeEvents: false,
-      mergeEventProperties: [ 'event', 'time', 'receiverId', 'rssi' ],
+      mergeEventProperties: [ 'event', 'time', 'rssi', 'receiverId', 
+                              'receiverDirectory', 'receiverUrl',
+                              'position', 'sessionDuration',
+                              'passedFilters' ],
+      retainEventProperties: [ 'event', 'time', 'deviceId', 'deviceTags',
+                               'deviceUrl', 'deviceAssociationIds',
+                               'rssi', 'receiverId', 'receiverTags',
+                               'receiverUrl', 'receiverDirectory',
+                               'position', 'sessionId',
+                               'sessionDuration', 'passedFilters' ];
       maintainDirectories: false,
       observeOnlyFiltered: false,
       filters: { /* See below */ }
@@ -153,7 +162,11 @@ Depending on the application and number of events, there may be a measurable per
 
 ### mergeEventProperties
 
-The list of properties to consider when merging events (see above).  Only the specified properties will be updated.  Note that any unspecified properties are likely to become stale and should therefore be ignored by the application.
+The list of properties to consider when merging events (see above).  Only the specified properties will be updated.  Note that any unspecified properties are likely to become stale and should therefore be ignored by the application, or omitted from the retainEventProperties list.
+
+### retainEventProperties
+
+The list of event properties to retain, discarding all others.  Specify only the application-specific properties to reduce memory footprint.
 
 ### maintainDirectories
 
@@ -174,7 +187,7 @@ The following filters are supported (those shown are the defaults):
     {
       minSessionDuration: 0,
       maxSessionDuration: 9007199254740991,
-      isPerson: [ 'yes', 'probably' ],
+      isPerson: [ 'yes', 'possibly' ],
       whitelistTags: [ 'track' ],
       blacklistTags: [ 'ignore' ]
     }
@@ -187,7 +200,7 @@ License
 
 MIT License
 
-Copyright (c) 2016-2018 reelyActive
+Copyright (c) 2016-2018 [reelyActive](https://www.reelyactive.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
