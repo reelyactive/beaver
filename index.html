@@ -69,6 +69,7 @@
                   <td> disappearances </td>
                   <td> {{stats.disappearances}} </td>
                 </tr>
+                <tr> <td colspan="2" class="active"> </td> </tr>
                 <tr>
                   <td> passedFilters </td>
                   <td> {{stats.passedFilters}} </td>
@@ -112,13 +113,13 @@
               <caption> REAL-TIME EVENT STREAM </caption>
               <thead>
                 <tr>
-                  <th> Transmitter ID </th>
-                  <th> Event </th>
-                  <th> Receiver ID/directory </th>
-                  <th> RSSI </th>
-                  <th> Timestamp </th>
-                  <th> Ass. </th>
-                  <th> Filter </th>
+                  <th> deviceId </th>
+                  <th> event </th>
+                  <th> receiverId/Directory </th>
+                  <th> rssi </th>
+                  <th> time </th>
+                  <th> deviceUrl </th>
+                  <th> passedFilters </th>
                 </tr>
               </thead>
               <tbody>
@@ -162,10 +163,10 @@
           beaver.js
         </a>
         &nbsp; | &nbsp;
-        <a href="http://www.reelyactive.com"
+        <a href="https://www.reelyactive.com"
            uib-tooltip="We believe in an open Internet of Things"
            tooltip-placement="right">
-          &copy; reelyActive 2016-2017
+          &copy; reelyActive 2016-2018
         </a>
       </footer>
     </div>
