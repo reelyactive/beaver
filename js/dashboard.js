@@ -1,5 +1,5 @@
 /**
- * Copyright reelyActive 2016-2017
+ * Copyright reelyActive 2016-2018
  * We believe in an open Internet of Things
  */
 
@@ -10,8 +10,12 @@ DEFAULT_POLLING_URL = 'https://www.hyperlocalcontext.com/contextat/directory/not
 DEFAULT_POLLING_MILLISECONDS = 5000;
 DEFAULT_BEAVER_OPTIONS = {
   disappearanceMilliseconds: 20000,
-  mergeEvents: false,
-  mergeEventProperties: [ 'event', 'time', 'receiverId', 'rssi' ],
+  mergeEvents: true,
+  mergeEventProperties: [ 'event', 'time', 'receiverId', 'receiverDirectory',
+                          'rssi', 'passedFilters' ],
+  retainEventProperties: [ 'event', 'deviceId', 'deviceUrl', 'time',
+                           'receiverId', 'receiverDirectory', 'rssi',
+                           'passedFilters' ],
   maintainDirectories: true
 };
 DEFAULT_DIRECTORY_ID = 'Unspecified';
