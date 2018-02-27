@@ -51,7 +51,7 @@ angular.module('reelyactive.beaver', [])
 
     // Use the given event to update the status of the corresponding device
     function updateDevice(type, event) {
-      if(!isValidEvent) {
+      if(!isValidEvent(event)) {
         return;
       }
 
