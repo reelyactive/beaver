@@ -103,6 +103,9 @@ All the receiver directories detected by beaver, including the receivers and dev
         "devices": {
           "fee150bada55": { /* Same as in devices, above */ }
         }
+        "numberOfReceivers": 1,
+        "numberOfDevices": 1,
+        "numberOfOccupants": 0
       }
     }
 
