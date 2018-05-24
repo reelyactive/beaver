@@ -239,7 +239,7 @@ angular.module('reelyactive.beaver', [])
         }
         else if(directories[cDirectory].devices.hasOwnProperty(deviceId)) {
           delete directories[cDirectory].devices[deviceId];
-          directories[cDirectory].numberOfDevices--;
+          updateDirectoryCounts(cDirectory);
         }
       }
 
@@ -248,7 +248,8 @@ angular.module('reelyactive.beaver', [])
             receivers: {},
             devices: {},
             numberOfReceivers: 0,
-            numberOfDevices: 0
+            numberOfDevices: 0,
+            numberOfOccupants: 0
         };
         addReceiver(directory, event);
         if((event.event !== 'disappearance') && isObservedByFilters(event)) {
@@ -260,8 +261,22 @@ angular.module('reelyactive.beaver', [])
     // Add the device to the given directory
     function addDevice(directory, event) {
       directories[directory].devices[event.deviceId] = devices[event.deviceId];
-      directories[directory].numberOfDevices =
-                            Object.keys(directories[directory].devices).length;
+      updateDirectoryCounts(directory);
+    }
+
+    // Update the directory counts
+    function updateDirectoryCounts(directory) {
+      var numberOfDevices = 0;
+      var numberOfOccupants = 0;
+      for(deviceId in directories[directory].devices) {
+        var device = directories[directory].devices[deviceId];
+        if(device.event.passedFilters) { // TODO: add occupancy filters
+          numberOfOccupants++;
+        }
+        numberOfDevices++;
+      }
+      directories[directory].numberOfDevices = numberOfDevices;
+      directories[directory].numberOfOccupants = numberOfOccupants;
     }
 
     // Add the receiver to the given directory

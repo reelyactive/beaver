@@ -91,14 +91,16 @@
                   <th> Directory </th>
                   <th> Receivers </th>
                   <th> Devices </th>
+                  <th> Occupants </th>
                 </tr>
               </thead>
               <tbody>
                 <tr ng-repeat="directory in directories |
-                               orderBy: '-deviceCount' | limitTo: 3">
+                               orderBy: '-numberOfDevices' | limitTo: 3">
                   <td> {{directory.id}} </td>
                   <td> {{directory.numberOfReceivers}} </td>
                   <td> {{directory.numberOfDevices}} </td>
+                  <td> {{directory.numberOfOccupants}} </td>
                 </tr>
               </tbody>
             </table>
