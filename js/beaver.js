@@ -235,22 +235,34 @@ angular.module('reelyactive.beaver', [])
         if((directory === cDirectory) && (event.event !== 'disappearance') &&
            isObservedByFilters(event)) {
           addReceiver(directory, event);
-          directories[cDirectory].devices[deviceId] = devices[deviceId];
+          addDevice(directory, event);
         }
         else if(directories[cDirectory].devices.hasOwnProperty(deviceId)) {
           delete directories[cDirectory].devices[deviceId];
+          directories[cDirectory].numberOfDevices--;
         }
       }
 
       if(!directories.hasOwnProperty(directory)) {
-        directories[directory] = { receivers: {}, devices: {} };
+        directories[directory] = {
+            receivers: {},
+            devices: {},
+            numberOfReceivers: 0,
+            numberOfDevices: 0
+        };
         addReceiver(directory, event);
         if((event.event !== 'disappearance') && isObservedByFilters(event)) {
-          directories[directory].devices[deviceId] = devices[deviceId];
+          addDevice(directory, event);
         }
       }
     }
 
+    // Add the device to the given directory
+    function addDevice(directory, event) {
+      directories[directory].devices[event.deviceId] = devices[event.deviceId];
+      directories[directory].numberOfDevices =
+                            Object.keys(directories[directory].devices).length;
+    }
 
     // Add the receiver to the given directory
     function addReceiver(directory, event) {
@@ -261,6 +273,7 @@ angular.module('reelyactive.beaver', [])
           receiverDirectory: directory,
           receiverUrl: event.receiverUrl
         };
+        directories[directory].numberOfReceivers++;
       }
     }
 

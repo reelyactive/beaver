@@ -97,8 +97,8 @@
                 <tr ng-repeat="directory in directories |
                                orderBy: '-deviceCount' | limitTo: 3">
                   <td> {{directory.id}} </td>
-                  <td> {{directory.receiverCount}} </td>
-                  <td> {{directory.deviceCount}} </td>
+                  <td> {{directory.numberOfReceivers}} </td>
+                  <td> {{directory.numberOfDevices}} </td>
                 </tr>
               </tbody>
             </table>

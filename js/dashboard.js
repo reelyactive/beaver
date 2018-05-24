@@ -81,8 +81,6 @@ angular.module('dashboard', ['reelyactive.beaver'])
       else {    
         directory.id = DEFAULT_DIRECTORY_ID;
       } 
-      directory.receiverCount = Object.keys(directory.receivers).length;
-      directory.deviceCount = Object.keys(directory.devices).length;
       directoryArray.push(directory);
     }
 
