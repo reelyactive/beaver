@@ -6,6 +6,7 @@
 
 DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 DEFAULT_POLLING_MILLISECONDS = 5000;
+DEFAULT_OCCUPANCY_INTERVAL_MILLISECONDS = 15000;
 DEFAULT_MERGE_EVENTS = false;
 DEFAULT_MERGE_EVENT_PROPERTIES = [ 'event', 'time', 'rssi', 'receiverId', 
                                    'receiverDirectory', 'receiverUrl',
@@ -24,6 +25,7 @@ DEFAULT_MAX_SESSION_DURATION_FILTER = Number.MAX_SAFE_INTEGER;
 DEFAULT_IS_PERSON_FILTER = [ 'yes', 'possibly' ];
 DEFAULT_WHITELIST_TAGS_FILTER = [ 'track' ];
 DEFAULT_BLACKLIST_TAGS_FILTER = [ 'ignore' ];
+DEFAULT_OCCUPANCY_EVENT_THRESHOLD = 10;
 
 
 angular.module('reelyactive.beaver', [])
@@ -47,6 +49,7 @@ angular.module('reelyactive.beaver', [])
     var isPersonFilter = DEFAULT_IS_PERSON_FILTER;
     var whitelistTagsFilter = DEFAULT_WHITELIST_TAGS_FILTER;
     var blacklistTagsFilter = DEFAULT_BLACKLIST_TAGS_FILTER;
+    var occupancyEventThreshold = DEFAULT_OCCUPANCY_EVENT_THRESHOLD;
 
 
     // Use the given event to update the status of the corresponding device
@@ -239,7 +242,7 @@ angular.module('reelyactive.beaver', [])
         }
         else if(directories[cDirectory].devices.hasOwnProperty(deviceId)) {
           delete directories[cDirectory].devices[deviceId];
-          updateDirectoryCounts(cDirectory);
+          updateDirectoryCounts(cDirectory, false);
         }
       }
 
@@ -249,7 +252,9 @@ angular.module('reelyactive.beaver', [])
             devices: {},
             numberOfReceivers: 0,
             numberOfDevices: 0,
-            numberOfOccupants: 0
+            numberOfOccupants: 0,
+            occupancyEventCounts: [ 0, 0, 0, 0 ],
+            isOccupied: false
         };
         addReceiver(directory, event);
         if((event.event !== 'disappearance') && isObservedByFilters(event)) {
@@ -260,12 +265,14 @@ angular.module('reelyactive.beaver', [])
 
     // Add the device to the given directory
     function addDevice(directory, event) {
+      var isAlreadyPresent = directories[directory].devices.hasOwnProperty(
+                                                              event.deviceId);
       directories[directory].devices[event.deviceId] = devices[event.deviceId];
-      updateDirectoryCounts(directory);
+      updateDirectoryCounts(directory, isAlreadyPresent);
     }
 
     // Update the directory counts
-    function updateDirectoryCounts(directory) {
+    function updateDirectoryCounts(directory, isOccupancyEvent) {
       var numberOfDevices = 0;
       var numberOfOccupants = 0;
       for(deviceId in directories[directory].devices) {
@@ -277,6 +284,9 @@ angular.module('reelyactive.beaver', [])
       }
       directories[directory].numberOfDevices = numberOfDevices;
       directories[directory].numberOfOccupants = numberOfOccupants;
+      if(isOccupancyEvent) {
+        directories[directory].occupancyEventCounts[0]++;
+      }
     }
 
     // Add the receiver to the given directory
@@ -355,6 +365,21 @@ angular.module('reelyactive.beaver', [])
     }
 
 
+    // Update the occupancy by directory
+    function updateOccupancy() {
+      for(directoryName in directories) {
+        var directory = directories[directoryName];
+        var occupancyEventSum = 0;
+        directory.occupancyEventCounts.forEach(function(count) {
+          occupancyEventSum += count;
+        });
+        directory.isOccupied = (occupancyEventSum >= occupancyEventThreshold);
+        directory.occupancyEventCounts.pop();
+        directory.occupancyEventCounts.unshift(0);
+      }
+    }
+
+
     // Handle incoming socket events by type
     var handleSocketEvents = function(Socket, options) {
       handleOptions(options);
@@ -380,6 +405,10 @@ angular.module('reelyactive.beaver', [])
 
       var intervalMilliseconds = Math.round(disappearanceMilliseconds / 2);
       setInterval(purgeDisappearances, intervalMilliseconds);
+
+      if(maintainDirectories) {
+        setInterval(updateOccupancy, DEFAULT_OCCUPANCY_INTERVAL_MILLISECONDS);
+      }
     };
 
 
@@ -487,6 +516,8 @@ angular.module('reelyactive.beaver', [])
                               retainEventProperties;
       maintainDirectories = options.maintainDirectories || maintainDirectories;
       observeOnlyFiltered = options.observeOnlyFiltered || observeOnlyFiltered;
+      occupancyEventThreshold = options.occupancyEventThreshold ||
+                                occupancyEventThreshold;
       setFilters(options.filters);
     }
 
