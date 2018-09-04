@@ -105,7 +105,8 @@ All the receiver directories detected by beaver, including the receivers and dev
         }
         "numberOfReceivers": 1,
         "numberOfDevices": 1,
-        "numberOfOccupants": 0
+        "numberOfOccupants": 0,
+        "isOccupied": false
       }
     }
 
@@ -145,6 +146,7 @@ The following options are supported (those shown are the defaults):
                                'sessionDuration', 'passedFilters' ],
       maintainDirectories: false,
       observeOnlyFiltered: false,
+      occupancyEventThreshold: 10,
       filters: { /* See below */ }
     }
 
@@ -180,6 +182,10 @@ When set to _false_, beaver will not update the directories object returned by t
 When set to _true_, beaver will ignore events that do not pass the filter criteria.  Specifically, beaver will not emit such events, nor will it include the concerned devices among the observed devices and directories.  Stats are not affected by this setting.
 
 Enable this option when filters are relevant as it can significantly reduce memory footprint and computation load.
+
+### occupancyEventThreshold
+
+The number of occupancy events that must be observed in a given directory in the last minute for it to be considered occupied.  An occupancy event is counted as any subsequent event where the device remained in the same directory.
 
 
 Filters
