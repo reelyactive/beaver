@@ -1,0 +1,29 @@
+{
+  "name": "beaver",
+  "homepage": "https://reelyactive.github.io/beaver/",
+  "author": {
+    "name": "reelyActive",
+    "email": "info@reelyactive.com"
+  },
+  "description": "Client-side library to collect a real-time stream of events from reelyActive APIs. We believe in an open Internet of Things.",
+  "keywords": [
+    "reelyActive",
+    "IoT",
+    "RTLS",
+    "RFID",
+    "client-side"
+  ],
+  "version": "1.0.0",
+  "main": "./js/beaver.js",
+  "files": [
+    "./js/beaver.js"
+  ],
+  "repository": {
+    "url": "https://github.com/reelyactive/beaver",
+    "type": "git"
+  },
+  "contributors": [
+    { "name": "Jeffrey Dungen" }
+  ],
+  "license": "MIT"
+}
