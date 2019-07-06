@@ -78,8 +78,9 @@ let beaver = (function() {
   }
 
   // Listen on the given WebSocket
-  let listen = function(socket, printStatus) {
-    printStatus = printStatus || false;
+  let listen = function(socket, options) {
+    options = options || {};
+    let printStatus = options.printStatus || false;
 
     socket.on('raddec', handleRaddec);
 

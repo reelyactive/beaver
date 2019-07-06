@@ -59,7 +59,7 @@ Add a connection to the socket.io stream for beaver in the JavaScript app:
 
 ```javascript
 let socket = io.connect('http://localhost:3001');
-beaver.listen(socket, true);
+beaver.listen(socket);
 ```
 
 For a source of test data, [run the barnacles socket.io example](https://github.com/reelyactive/barnacles/#example-socketio-push-api).
