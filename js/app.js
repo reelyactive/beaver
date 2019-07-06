@@ -83,7 +83,7 @@ function appendTd(tr, text, classNames) {
 connectButton.addEventListener('click', function() {
   if(socketioUrl.value && (socketioUrl.value.indexOf('http') === 0)) {
     let socket = io.connect(socketioUrl.value);
-    beaver.listen(socket, true);
+    beaver.listen(socket, { printStatus: true });
   }
   else {
     socketioUrl.value = null;
