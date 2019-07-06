@@ -75,6 +75,18 @@ button.bg-reelyactive:focus {
   background-color: #033851 !important;
 }
 
+.tab-content-reelyactive {
+  border: 1px solid #dee2e6;
+  border-top: 0px;
+  border-bottom-left-radius: .25rem;
+  border-bottom-right-radius: .25rem;
+  padding: .5rem 1rem;
+}
+
+.nav-link.active {
+  font-weight: bold;
+}
+
 .btn-primary {
   color: #fff;
   background-color: #ff6900;
@@ -177,11 +189,62 @@ button.bg-reelyactive:focus {
   box-shadow: 0 0 0 0.2rem rgba(90, 90, 90, 0.5);
 }
 
+.badge-primary {
+  background-color: #ff6900;
+}
+
+a.badge-primary:hover {
+  background-color: #df5c00;
+}
+
+.badge-secondary {
+  background-color: #0770a2;
+}
+
+a.badge-secondary:hover {
+  background-color: #06628e;
+}
+
+.badge-info {
+  background-color: #5a5a5a;
+}
+
+a.badge-info:hover {
+  background-color: #333333;
+}
+
+.progress-bar {
+  background-color: #0770a2;
+}
 
 .table .thead-reelyactive th {
   color: #fff;
   background-color: #0770a2;
   border-color: #065f8a;
+}
+
+@-webkit-keyframes highlight-color-change {
+  from { background-color: #e9ecef; }
+  to { background-color: inherit; }
+}
+@-moz-keyframes highlight-color-change {
+  from { background-color: #e9ecef; }
+  to { background-color: inherit; }
+}
+@-o-keyframes highlight-color-change {
+  from { background-color: #e9ecef; }
+  to { background-color: inherit; }
+}
+@keyframes highlight-color-change {
+  from { background-color: #e9ecef; }
+  to { background-color: inherit; }
+}
+
+.animated-highlight-reelyactive {
+  -webkit-animation: highlight-color-change 1s;
+  -moz-animation:    highlight-color-change 1s;
+  -o-animation:      highlight-color-change 1s;
+  animation:         highlight-color-change 1s;
 }
 
 .footer {
