@@ -1,7 +1,7 @@
 beaver
 ======
 
-Client-side library to collect a real-time stream of events from reelyActive APIs.  We believe in an open Internet of Things.
+Client-side library to collect a real-time stream of events from reelyActive APIs.  __beaver.js__ will collect a data stream of _who/what is where/how_ from a server (ex: [hlc-server](https://github.com/reelyactive/hlc-server)), making this real-time information available to the web application.
 
 
 Installation
@@ -78,6 +78,12 @@ Introduced to the web browser habitat in 2016, beaver.js has adapted to fill pon
 Oh yeah, and the beaver is the [national animal of Canada](https://en.wikipedia.org/wiki/National_symbols_of_Canada) eh?  And the oversized rodent is currently celebrating its 40th anniversary as the [mascot of the 1976 Olympics](https://en.wikipedia.org/wiki/Amik) of our native Montreal.  We wood be dammed not to chews it as a mascot!
 
 Don’t like our punny ending?  Why not _lodge_ a complaint?
+
+
+What's next?
+------------
+
+__bever.js__ v1.0.0 was released in July 2019, superseding all earlier versions, the latest of which remains available in the [release-0.1 branch](https://github.com/reelyactive/beaver/tree/release-0.1).
 
 
 License
