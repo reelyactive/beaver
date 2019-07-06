@@ -39,6 +39,25 @@ let beaver = (function() {
     handleEventCallbacks(raddec);
   }
 
+  // Handle legacy events (Pareto & open source v0.x)
+  function handleLegacyEvent(event, var1, var2) {
+    let events = [ 'appearance', 'displacement', 'packets', 'keep-alive',
+                   'disappearance' ];
+    let raddec = {
+        transmitterId: event.deviceId,
+        transmitterIdType: 0,
+        rssiSignature: [ {
+          receiverId: event.receiverId,
+          recevierIdType: 0,
+          rssi: event.rssi,
+          numberOfDecodings: 1
+        } ],
+        events: [ events.indexOf(event.event) ],
+        timestamp: event.time
+    };
+    handleRaddec(raddec);
+  }
+
   // Handle each registered callback once for the given raddec/event(s)
   function handleEventCallbacks(raddec) {
     let completedCallbacks = [];
@@ -83,6 +102,10 @@ let beaver = (function() {
     let printStatus = options.printStatus || false;
 
     socket.on('raddec', handleRaddec);
+    socket.on('appearance', handleLegacyEvent);
+    socket.on('displacement', handleLegacyEvent);
+    socket.on('keep-alive', handleLegacyEvent);
+    socket.on('disappearance', handleLegacyEvent);
 
     if(printStatus) {
       socket.on('connect', function() {
