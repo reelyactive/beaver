@@ -1,24 +1,27 @@
 {
-  "name": "angular-beaver",
-  "version": "0.1.7",
+  "name": "beaver",
   "homepage": "https://reelyactive.github.io/beaver/",
-  "description": "Collects the real-time stream of events from reelyActive APIs via websockets or polling. We believe in an open Internet of Things.",
+  "author": {
+    "name": "reelyActive",
+    "email": "info@reelyactive.com"
+  },
+  "description": "Client-side library to collect a real-time stream of events from reelyActive APIs. We believe in an open Internet of Things.",
   "keywords": [
     "reelyActive",
     "IoT",
     "RTLS",
-    "angular",
+    "RFID",
     "client-side"
   ],
-  "main": "beaver.js",
+  "version": "1.0.0",
+  "main": "./js/beaver.js",
   "files": [
-    "beaver.js"
+    "./js/beaver.js"
   ],
   "repository": {
     "url": "https://github.com/reelyactive/beaver",
     "type": "git"
   },
-  "author": "reelyActive <webdev@reelyactive.com>",
   "contributors": [
     { "name": "Jeffrey Dungen" }
   ],
