@@ -1,13 +1,15 @@
-beaver
-======
+beaver.js
+=========
 
-Client-side library to collect a real-time stream of events from reelyActive APIs.  __beaver.js__ will collect a data stream of _who/what is where/how_ from a server (ex: [hlc-server](https://github.com/reelyactive/hlc-server)), making this real-time information available to the web application.
+__beaver__ maintains an up-to-date [hyperlocal context](https://www.reelyactive.com/context/) graph by consuming the real-time data stream from [Pareto Anywhere](https://www.reelyactive.com/pareto/anywhere/) APIs.
+
+__beaver__ is lightweight client-side JavaScript that runs in the browser.  See a live demo using the code in this repository at: [reelyactive.github.io/beaver](https://reelyactive.github.io/beaver)
 
 
-Installation
-------------
+Hello beaver!
+-------------
 
-__beaver.js__ is written in vanilla JavaScript and the file can simply be included among the scripts in an HTML file.  For example:
+Include in an _index.html_ file the __beaver.js__ script:
 
 ```html
 <html>
@@ -19,50 +21,29 @@ __beaver.js__ is written in vanilla JavaScript and the file can simply be includ
 </html>
 ```
 
-
-Hello beaver
-------------
-
-Include in your _js/app.js_ the following code:
+Include in a _js/app.js_ the code to connect to a Pareto Anywhere instance:
 
 ```javascript
-beaver.on('raddec', function(raddec) {
-  console.log(raddec);
-});
+let url = 'http://pareto.local';
+
+// TODO
 ```
 
-This will log to the console each [raddec](https://github.com/reelyactive/raddec) received by __beaver.js__.  In this example, no raddec events will occur until __beaver.js__ is provide a _stream_ of such events, as described next.
+Open the _index.html_ file in a web browser for __beaver__ to connect to the Pareto Anywhere instance and begin maintaining the hyperlocal context graph.
 
 
+Supported functions
+-------------------
 
-Beavers love streams!
----------------------
+### on
 
-__beaver.js__ can listen to any source of _raddec_ events.
 
-### socket.io stream
+Supported variables
+-------------------
 
-Include the [socket.io library](https://socket.io/) in the HTML file:
-
-```html
-<html>
-  <head></head>
-  <body>
-    <script src="js/socket.io.slim.js"></script>
-    <script src="js/beaver.js"></script>
-    <script src="js/app.js"></script>
-  </body>
-</html>
-```
-
-Add a connection to the socket.io stream for beaver in the JavaScript app:
-
-```javascript
-let socket = io.connect('http://localhost:3001');
-beaver.listen(socket);
-```
-
-For a source of test data, [run the barnacles socket.io example](https://github.com/reelyactive/barnacles/#example-socketio-push-api).
+| Variable         | Type | Description             |
+|:-----------------|:-----|:------------------------|
+| `beaver.devices` | Map  | Device signature as key |
 
 
 ![beaver logo](https://reelyactive.github.io/beaver/images/beaver-bubble.png)
@@ -80,10 +61,12 @@ Oh yeah, and the beaver is the [national animal of Canada](https://en.wikipedia.
 Don’t like our punny ending?  Why not _lodge_ a complaint?
 
 
-What's next?
-------------
+Project History
+---------------
 
-__bever.js__ v1.0.0 was released in July 2019, superseding all earlier versions, the latest of which remains available in the [release-0.1 branch](https://github.com/reelyactive/beaver/tree/release-0.1).
+__beaver__ v2.0.0 was released in February 2023.
+
+__beaver.js__ v1.0.0 was released in July 2019, superseding all earlier versions, the latest of which remains available in the [release-0.1 branch](https://github.com/reelyactive/beaver/tree/release-0.1).
 
 
 Contributing
