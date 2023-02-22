@@ -17,4 +17,6 @@ paretoUrl.value = DEFAULT_URL;
 
 
 // Handle Pareto button click
-paretoButton.addEventListener('click', () => { });
+paretoButton.addEventListener('click', () => {
+    beaver.stream(paretoUrl.value, { io: io, path: "/devices" });
+});

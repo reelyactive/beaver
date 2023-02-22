@@ -1,5 +1,5 @@
 /**
- * Copyright reelyActive 2016-2019
+ * Copyright reelyActive 2016-2023
  * We believe in an open Internet of Things
  */
 
@@ -8,139 +8,129 @@ let beaver = (function() {
 
   // Internal constants
   const SIGNATURE_SEPARATOR = '/';
-  const ALL_EVENTS_INDEX_LIST = [ 0, 1, 2, 3, 4 ];
+  const DEFAULT_PATH = '/devices';
   const DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 
   // Internal variables
-  let transmitters = {};
-  let eventCallbacks = [ [], [], [], [], [] ];
+  let devices = new Map();
+  let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [] };
   let disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
   let purgeTimeout = null;
 
-  // Get the given raddec's transmitter signature
-  function getTransmitterSignature(raddec) {
-    return raddec.transmitterId + SIGNATURE_SEPARATOR +
-           raddec.transmitterIdType;
-  }
-
   // Handle the given raddec
   function handleRaddec(raddec) {
-    let transmitterSignature = getTransmitterSignature(raddec);
-    let isNewTransmitter = !transmitters.hasOwnProperty(transmitterSignature);
+    let signature = raddec.transmitterId + SIGNATURE_SEPARATOR +
+                    raddec.transmitterIdType;
 
-    raddec.timestamp = raddec.timestamp || new Date().getTime();
-    raddec.packets = raddec.packets || [];
-    raddec.events = raddec.events || [ 3 ];
+    eventCallbacks['raddec'].forEach(callback => callback(raddec));
 
-    if(isNewTransmitter) {
-      transmitters[transmitterSignature] = {};
-    }
-    transmitters[transmitterSignature].raddec = raddec;
-    handleEventCallbacks(raddec);
+    // TODO
   }
 
-  // Handle legacy events (Pareto & open source v0.x)
-  function handleLegacyEvent(event, var1, var2) {
-    let events = [ 'appearance', 'displacement', 'packets', 'keep-alive',
-                   'disappearance' ];
-    let raddec = {
-        transmitterId: event.deviceId,
-        transmitterIdType: 0,
-        rssiSignature: [ {
-          receiverId: event.receiverId,
-          recevierIdType: 0,
-          rssi: event.rssi,
-          numberOfDecodings: 1
-        } ],
-        events: [ events.indexOf(event.event) ],
-        timestamp: event.time
-    };
-    handleRaddec(raddec);
+  // Handle the given dynamb
+  function handleDynamb(dynamb) {
+    let signature = dynamb.deviceId + SIGNATURE_SEPARATOR +
+                    dynamb.deviceIdType;
+
+    eventCallbacks['dynamb'].forEach(callback => callback(dynamb));
+
+    // TODO
   }
 
-  // Handle each registered callback once for the given raddec/event(s)
-  function handleEventCallbacks(raddec) {
-    let completedCallbacks = [];
+  // Handle the given spatem
+  function handleSpatem(spatem) {
+    let signature = spatem.deviceId + SIGNATURE_SEPARATOR +
+                    spatem.deviceIdType;
 
-    eventCallbacks.forEach(function(callbacks, eventIndex) {
-      if(raddec.events.includes(eventIndex)) {
-        callbacks.forEach(function(callback) {
-          if(callback && (!completedCallbacks.includes(callback))) {
-            callback(raddec);
-          }
-        });
-      }
-    });
+    eventCallbacks['spatem'].forEach(callback => callback(spatem));
+
+    // TODO
   }
 
   // Purge any stale transmitters as disappearances
   function purgeDisappearances() {
     let currentTime = new Date().getTime();
     let nextPurgeTime = currentTime + disappearanceMilliseconds;
-    for(transmitterSignature in transmitters) {
-      let raddec = transmitters[transmitterSignature].raddec;
-      let stalenessMilliseconds = currentTime - raddec.timestamp;
-      if(stalenessMilliseconds > disappearanceMilliseconds) {
-        raddec.events = [ 4 ];
-        handleEventCallbacks(raddec);
-        delete transmitters[transmitterSignature]; // TODO: delete only raddec?
-      }
-      else {
-        let purgeTime = raddec.timestamp + disappearanceMilliseconds;
-        if(purgeTime < nextPurgeTime) {
-          nextPurgeTime = purgeTime;
-        }
-      }
-    }
+
+    // TODO
+
     let timeoutMilliseconds = Math.max(nextPurgeTime - currentTime, 10);
     purgeTimeout = setTimeout(purgeDisappearances, timeoutMilliseconds);
   }
 
-  // Listen on the given WebSocket
-  let listen = function(socket, options) {
-    options = options || {};
-    let printStatus = options.printStatus || false;
+  // Perform a HTTP GET on the given URL, accepting JSON
+  function retrieveJson(url, callback) {
+    try {
+      fetch(url, { headers: { "Accept": "application/json" } })
+        .then((response) => {
+          if(!response.ok) {
+            throw new Error('GET ' + url + ' returned ' + response.status);
+          }
+          return response.json();
+        })
+        .then((result) => { return callback(result); })
+        .catch((error) => { return callback(null, error); });
+    }
+    catch(error) {
+      return callback(null, error);
+    }
+  }
 
+  // Handle socket.io events
+  function handleSocketEvents(socket) {
+    socket.on('connect', () => {
+      console.log('beaver connected to socket');
+      eventCallbacks['connect'].forEach(callback => callback());
+    });
     socket.on('raddec', handleRaddec);
-    socket.on('appearance', handleLegacyEvent);
-    socket.on('displacement', handleLegacyEvent);
-    socket.on('keep-alive', handleLegacyEvent);
-    socket.on('disappearance', handleLegacyEvent);
+    socket.on('dynamb', handleDynamb);
+    socket.on('spatem', handleSpatem);
+    socket.on('disconnect', (message) => {
+      console.log('beaver disconnected from socket:', message);
+    });
+  }
 
-    if(printStatus) {
-      socket.on('connect', function() {
-        console.log('beaver connected to socket');
-      });
-      socket.on('disconnect', function(message) {
-        console.log('beaver disconnected from socket:', message);
-      });
-    }
+  // Stream from the given server
+  let stream = function(serverRootUrl, options) {
+    options = options || {};
+    options.isDebug = options.isDebug || false;
+    options.path = options.path || DEFAULT_PATH;
+    let serverUrl = serverRootUrl + options.path;
 
-    if(!purgeTimeout) {
-      purgeDisappearances();
-    }
-  };
+    // Query the API first
+    retrieveJson(serverUrl, (data, err) => {
+      if(err) {
+        return console.log('beaver.js stream failed:', err);
+      }
+      for(const signature in data.devices) {
+        devices.set(signature, data.devices[signature]);
+      }
 
-  // Register a callback for the given event type(s)
-  let setEventCallback = function(events, callback) {
-    if(!(callback && (typeof callback === 'function'))) { 
-      return;
-    }
-    if(!Array.isArray(events)) {
-      events = ALL_EVENTS_INDEX_LIST;
-    }
-    events.forEach(function(event) {
-      if(ALL_EVENTS_INDEX_LIST.includes(event)) {
-        eventCallbacks[event].push(callback);
+      if(options.io) { // Use socket.io
+        let socket = options.io.connect(serverUrl);
+        handleSocketEvents(socket);
+      }
+      else {               // Use polling
+
       }
     });
+  };
+
+  // Register a callback for the given event
+  let setEventCallback = function(event, callback) {
+    let isValidEvent = event && eventCallbacks.hasOwnProperty(event);
+    let isValidCallback = callback && (typeof callback === 'function');
+
+    if(isValidEvent && isValidCallback) {
+      eventCallbacks[event].push(callback);
+    }
   }
 
   // Expose the following functions and variables
   return {
-    listen: listen,
+    stream: stream,
     on: setEventCallback,
-    transmitters: transmitters
+    devices: devices
   }
 
 }());
