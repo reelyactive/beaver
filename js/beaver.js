@@ -8,7 +8,8 @@ let beaver = (function() {
 
   // Internal constants
   const SIGNATURE_SEPARATOR = '/';
-  const DEFAULT_PATH = '/devices';
+  const DEFAULT_STREAM_PATH = '/devices';
+  const DEFAULT_QUERY_PATH = '/context';
   const DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 
   // Internal variables
@@ -102,14 +103,14 @@ let beaver = (function() {
   // Handle socket.io events
   function handleSocketEvents(socket) {
     socket.on('connect', () => {
-      console.log('beaver connected to socket');
+      console.log('beaver.js connected to socket');
       eventCallbacks['connect'].forEach(callback => callback());
     });
     socket.on('raddec', handleRaddec);
     socket.on('dynamb', handleDynamb);
     socket.on('spatem', handleSpatem);
     socket.on('disconnect', (message) => {
-      console.log('beaver disconnected from socket:', message);
+      console.log('beaver.js disconnected from socket:', message);
     });
   }
 
@@ -118,26 +119,19 @@ let beaver = (function() {
     options = options || {};
     options.isDebug = options.isDebug || false;
 
+    let streamUrl = serverRootUrl + DEFAULT_STREAM_PATH;
+    let queryUrl = serverRootUrl + DEFAULT_QUERY_PATH;
     let streams = {};
 
-    // Stream a specific device
     if(options.deviceSignature) {
-      let streamUrl = serverRootUrl + '/context/device/' +
-                      options.deviceSignature;
-      if(options.io) {
-        streams.socket = options.io.connect(streamUrl);
-        handleSocketEvents(streams.socket);
-      }
+      streamUrl = serverRootUrl + '/context/device/' + options.deviceSignature;
+      queryUrl = streamUrl;
     }
 
-    // Stream all devices
-    else {
-      let streamUrl = serverRootUrl + '/devices';
-      retrieveJson(serverRootUrl + '/context/', handleContext);
-      if(options.io) {
-        streams.socket = options.io.connect(streamUrl);
-        handleSocketEvents(streams.socket);
-      }
+    retrieveJson(queryUrl, handleContext);
+    if(options.io) {
+      streams.socket = options.io.connect(streamUrl);
+      handleSocketEvents(streams.socket);
     }
 
     return streams;
