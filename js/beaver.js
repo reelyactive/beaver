@@ -18,6 +18,22 @@ let beaver = (function() {
   let disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
   let purgeTimeout = null;
 
+  // Create the array of nearest devices based on the given raddec & dynamb
+  function createNearest(raddec, dynamb) {
+    let nearest = [];
+    if(raddec && Array.isArray(raddec.rssiSignature)) {
+      raddec.rssiSignature.forEach((entry) => {
+        let signature = entry.receiverId + SIGNATURE_SEPARATOR +
+                        entry.receiverIdType;
+        nearest.push({ device: signature, rssi: entry.rssi });
+      });
+    }
+    if(dynamb && Array.isArray(dynamb.nearest)) {
+      dynamb.nearest.forEach((entry) => { nearest.push(entry); });
+    }
+    return nearest.sort((a, b) => b.rssi - a.rssi);
+  }
+
   // Create a copy of the given dynamb, trimmed of its identifier
   function createTrimmedDynamb(dynamb) {
     let trimmedDynamb = Object.assign({}, dynamb);
@@ -30,16 +46,18 @@ let beaver = (function() {
   function handleRaddec(raddec) {
     let signature = raddec.transmitterId + SIGNATURE_SEPARATOR +
                     raddec.transmitterIdType;
+    let device = devices.get(signature);
 
-    if(devices.has(signature)) {
-      let device = devices.get(signature);
+    if(device) {
       if(!device.hasOwnProperty('raddec') ||
          (raddec.timestamp > device.raddec.timestamp)) {
         device.raddec = raddec;
+        device.nearest = createNearest(device.raddec, device.dynamb);
       }
     }
     else {
-      devices.set(signature, { raddec: raddec }); // TODO: nearest
+      device = { raddec: raddec, nearest: createNearest(raddec) };
+      devices.set(signature, device);
     }
 
     eventCallbacks['raddec'].forEach(callback => callback(raddec));
@@ -49,18 +67,22 @@ let beaver = (function() {
   function handleDynamb(dynamb) {
     let signature = dynamb.deviceId + SIGNATURE_SEPARATOR +
                     dynamb.deviceIdType;
+    let device = devices.get(signature);
 
-    if(devices.has(signature)) {
-      let device = devices.get(signature);
+    if(device) {
       if(!device.hasOwnProperty('dynamb') ||
          (dynamb.timestamp > device.dynamb.timestamp)) {
         device.dynamb = createTrimmedDynamb(dynamb);
+        device.nearest = createNearest(device.raddec, device.dynamb);
       }
     }
     else {
-      devices.set(signature, { dynamb: createTrimmedDynamb(dynamb) });
+      device = { dynamb: createTrimmedDynamb(dynamb) };
+      if(Array.isArray(dynamb.nearest)) {
+        device.nearest = createNearest(device.raddec, device.dynamb);
+      }
+      devices.set(signature, device);
     }
-
     eventCallbacks['dynamb'].forEach(callback => callback(dynamb));
   }
 
@@ -132,8 +154,8 @@ let beaver = (function() {
     let streams = {};
 
     if(options.deviceSignature) {
-      streamUrl = serverRootUrl + '/context/device/' + options.deviceSignature;
-      queryUrl = streamUrl;
+      streamUrl = serverRootUrl + '/devices/' + options.deviceSignature;
+      queryUrl = serverRootUrl + '/context/device/' + options.deviceSignature;
     }
 
     retrieveJson(queryUrl, handleContext);
