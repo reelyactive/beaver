@@ -18,6 +18,14 @@ let beaver = (function() {
   let disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
   let purgeTimeout = null;
 
+  // Create a copy of the given dynamb, trimmed of its identifier
+  function createTrimmedDynamb(dynamb) {
+    let trimmedDynamb = Object.assign({}, dynamb);
+    delete trimmedDynamb.deviceId;
+    delete trimmedDynamb.deviceIdType;
+    return trimmedDynamb;
+  }
+
   // Handle the given raddec
   function handleRaddec(raddec) {
     let signature = raddec.transmitterId + SIGNATURE_SEPARATOR +
@@ -46,11 +54,11 @@ let beaver = (function() {
       let device = devices.get(signature);
       if(!device.hasOwnProperty('dynamb') ||
          (dynamb.timestamp > device.dynamb.timestamp)) {
-        device.dynamb = dynamb; // TODO: remove deviceId/Type
+        device.dynamb = createTrimmedDynamb(dynamb);
       }
     }
     else {
-      devices.set(signature, { dynamb: dynamb });
+      devices.set(signature, { dynamb: createTrimmedDynamb(dynamb) });
     }
 
     eventCallbacks['dynamb'].forEach(callback => callback(dynamb));
