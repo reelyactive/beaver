@@ -22,9 +22,18 @@ let beaver = (function() {
     let signature = raddec.transmitterId + SIGNATURE_SEPARATOR +
                     raddec.transmitterIdType;
 
-    eventCallbacks['raddec'].forEach(callback => callback(raddec));
+    if(devices.has(signature)) {
+      let device = devices.get(signature);
+      if(!device.hasOwnProperty('raddec') ||
+         (raddec.timestamp > device.raddec.timestamp)) {
+        device.raddec = raddec;
+      }
+    }
+    else {
+      devices.set(signature, { raddec: raddec }); // TODO: nearest
+    }
 
-    // TODO
+    eventCallbacks['raddec'].forEach(callback => callback(raddec));
   }
 
   // Handle the given dynamb
@@ -32,9 +41,18 @@ let beaver = (function() {
     let signature = dynamb.deviceId + SIGNATURE_SEPARATOR +
                     dynamb.deviceIdType;
 
-    eventCallbacks['dynamb'].forEach(callback => callback(dynamb));
+    if(devices.has(signature)) {
+      let device = devices.get(signature);
+      if(!device.hasOwnProperty('dynamb') ||
+         (dynamb.timestamp > device.dynamb.timestamp)) {
+        device.dynamb = dynamb; // TODO: remove deviceId/Type
+      }
+    }
+    else {
+      devices.set(signature, { dynamb: dynamb });
+    }
 
-    // TODO
+    eventCallbacks['dynamb'].forEach(callback => callback(dynamb));
   }
 
   // Handle the given spatem
@@ -45,6 +63,16 @@ let beaver = (function() {
     eventCallbacks['spatem'].forEach(callback => callback(spatem));
 
     // TODO
+  }
+
+  // Handle a context query callback
+  function handleContext(data, err) {
+    if(err) {
+      return console.log('beaver.js context query failed:\r\n', err);
+    }
+    for(const signature in data.devices) {
+      devices.set(signature, data.devices[signature]); // TODO: merge?
+    }
   }
 
   // Purge any stale transmitters as disappearances
@@ -89,26 +117,30 @@ let beaver = (function() {
   let stream = function(serverRootUrl, options) {
     options = options || {};
     options.isDebug = options.isDebug || false;
-    options.path = options.path || DEFAULT_PATH;
-    let serverUrl = serverRootUrl + options.path;
 
-    // Query the API first
-    retrieveJson(serverUrl, (data, err) => {
-      if(err) {
-        return console.log('beaver.js stream failed:', err);
-      }
-      for(const signature in data.devices) {
-        devices.set(signature, data.devices[signature]);
-      }
+    let streams = {};
 
-      if(options.io) { // Use socket.io
-        let socket = options.io.connect(serverUrl);
-        handleSocketEvents(socket);
+    // Stream a specific device
+    if(options.deviceSignature) {
+      let streamUrl = serverRootUrl + '/context/device/' +
+                      options.deviceSignature;
+      if(options.io) {
+        streams.socket = options.io.connect(streamUrl);
+        handleSocketEvents(streams.socket);
       }
-      else {               // Use polling
+    }
 
+    // Stream all devices
+    else {
+      let streamUrl = serverRootUrl + '/devices';
+      retrieveJson(serverRootUrl + '/context/', handleContext);
+      if(options.io) {
+        streams.socket = options.io.connect(streamUrl);
+        handleSocketEvents(streams.socket);
       }
-    });
+    }
+
+    return streams;
   };
 
   // Register a callback for the given event
