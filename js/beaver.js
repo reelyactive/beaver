@@ -42,6 +42,14 @@ let beaver = (function() {
     return trimmedDynamb;
   }
 
+  // Create a copy of the given spatem, trimmed of its identifier
+  function createTrimmedSpatem(spatem) {
+    let trimmedSpatem = Object.assign({}, spatem);
+    delete trimmedSpatem.deviceId;
+    delete trimmedSpatem.deviceIdType;
+    return trimmedSpatem;
+  }
+
   // Handle the given raddec
   function handleRaddec(raddec) {
     let signature = raddec.transmitterId + SIGNATURE_SEPARATOR +
@@ -83,6 +91,7 @@ let beaver = (function() {
       }
       devices.set(signature, device);
     }
+
     eventCallbacks['dynamb'].forEach(callback => callback(dynamb));
   }
 
@@ -90,10 +99,20 @@ let beaver = (function() {
   function handleSpatem(spatem) {
     let signature = spatem.deviceId + SIGNATURE_SEPARATOR +
                     spatem.deviceIdType;
+    let device = devices.get(signature);
+
+    if(device) {
+      if(!device.hasOwnProperty('spatem') ||
+         (spatem.timestamp > device.spatem.timestamp)) {
+        device.spatem = createTrimmedSpatem(spatem);
+      }
+    }
+    else {
+      device = { spatem: createTrimmedSpatem(spatem) };
+      devices.set(signature, device);
+    }
 
     eventCallbacks['spatem'].forEach(callback => callback(spatem));
-
-    // TODO
   }
 
   // Handle a context query callback
