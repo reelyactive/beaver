@@ -60,20 +60,15 @@ let beaver = (function() {
 
   // Perform a HTTP GET on the given URL, accepting JSON
   function retrieveJson(url, callback) {
-    try {
-      fetch(url, { headers: { "Accept": "application/json" } })
-        .then((response) => {
-          if(!response.ok) {
-            throw new Error('GET ' + url + ' returned ' + response.status);
-          }
-          return response.json();
-        })
-        .then((result) => { return callback(result); })
-        .catch((error) => { return callback(null, error); });
-    }
-    catch(error) {
-      return callback(null, error);
-    }
+    fetch(url, { headers: { "Accept": "application/json" } })
+      .then((response) => {
+        if(!response.ok) {
+          throw new Error('GET ' + url + ' returned status ' + response.status);
+        }
+        return response.json();
+      })
+      .then((result) => { return callback(result); })
+      .catch((error) => { return callback(null, error); });
   }
 
   // Handle socket.io events
