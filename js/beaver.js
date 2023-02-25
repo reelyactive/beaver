@@ -10,13 +10,16 @@ let beaver = (function() {
   const SIGNATURE_SEPARATOR = '/';
   const DEFAULT_STREAM_PATH = '/devices';
   const DEFAULT_QUERY_PATH = '/context';
+  const DEFAULT_UPDATE_MILLISECONDS = 5000;
   const DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
 
   // Internal variables
   let devices = new Map();
   let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [] };
-  let disappearanceMilliseconds = DEFAULT_DISAPPEARANCE_MILLISECONDS;
-  let purgeTimeout = null;
+  let eventCounts = { raddec: 0, dynamb: 0, spatem: 0 };
+  let updateMilliseconds = DEFAULT_UPDATE_MILLISECONDS;
+  let updateTimeout = null;
+  let lastUpdateTime;
 
   // Create the array of nearest devices based on the given raddec & dynamb
   function createNearest(raddec, dynamb) {
@@ -69,6 +72,7 @@ let beaver = (function() {
     }
 
     eventCallbacks['raddec'].forEach(callback => callback(raddec));
+    eventCounts.raddec++;
   }
 
   // Handle the given dynamb
@@ -93,6 +97,7 @@ let beaver = (function() {
     }
 
     eventCallbacks['dynamb'].forEach(callback => callback(dynamb));
+    eventCounts.dynamb++;
   }
 
   // Handle the given spatem
@@ -113,6 +118,7 @@ let beaver = (function() {
     }
 
     eventCallbacks['spatem'].forEach(callback => callback(spatem));
+    eventCounts.spatem++;
   }
 
   // Handle a context query callback
@@ -125,15 +131,28 @@ let beaver = (function() {
     }
   }
 
-  // Purge any stale transmitters as disappearances
-  function purgeDisappearances() {
-    let currentTime = new Date().getTime();
-    let nextPurgeTime = currentTime + disappearanceMilliseconds;
+  // Update the hyperlocal context graph and stats, then set next update
+  function update() {
+    let currentUpdateTime = Date.now();
 
-    // TODO
+    if(lastUpdateTime) {
+      let updateIntervalSeconds = (currentUpdateTime - lastUpdateTime) / 1000;
+      let stats = {
+          eventsPerSecond: {
+              raddec: eventCounts.raddec / updateIntervalSeconds,
+              dynamb: eventCounts.dynamb / updateIntervalSeconds,
+              spatem: eventCounts.spatem / updateIntervalSeconds
+          }
+      };
+      eventCounts.raddec = 0;
+      eventCounts.dynamb = 0;
+      eventCounts.spatem = 0;
+    }
 
-    let timeoutMilliseconds = Math.max(nextPurgeTime - currentTime, 10);
-    purgeTimeout = setTimeout(purgeDisappearances, timeoutMilliseconds);
+    // TODO: emit stats
+
+    lastUpdateTime = currentUpdateTime;
+    updateTimeout = setTimeout(update, updateMilliseconds);
   }
 
   // Perform a HTTP GET on the given URL, accepting JSON
@@ -181,6 +200,10 @@ let beaver = (function() {
     if(options.io) {
       streams.socket = options.io.connect(streamUrl);
       handleSocketEvents(streams.socket);
+    }
+
+    if(!updateTimeout) {
+      update(); // Start periodic updates
     }
 
     return streams;
