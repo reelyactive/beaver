@@ -24,9 +24,7 @@ Include in an _index.html_ file the __beaver.js__ script:
 Include in a _js/app.js_ the code to connect to a Pareto Anywhere instance:
 
 ```javascript
-let url = 'http://pareto.local';
-
-// TODO
+beaver.stream('http://pareto.local', { /* Options: see below */ });
 ```
 
 Open the _index.html_ file in a web browser for __beaver__ to connect to the Pareto Anywhere instance and begin maintaining the hyperlocal context graph.
@@ -35,7 +33,57 @@ Open the _index.html_ file in a web browser for __beaver__ to connect to the Par
 Supported functions
 -------------------
 
+### stream
+
+```javascript
+let serverRootUrl = 'http://pareto.local';
+let options = { /* See below */ };
+
+let streams = beaver.stream(serverRootUrl, options);
+```
+
+If the serverRootUrl is provided, and valid, __beaver__ will HTTP GET the /context route once to establish the hyperlocal context graph.  The options are as follows:
+
+| Property        | Default | Description                                     |
+|:----------------|:--------|:------------------------------------------------|
+| deviceSignature | null    | Specific device to stream (default all devices) |
+| io              | null    | Socket.IO dependency                            |
+| ioUrl           | null    | Override default URL for Socket.IO to listen on |
+| wsUrl           | null    | Specific URL for WebSocket to listen on         |
+
+For example, to stream using Socket.IO from a [Pareto Anywhere](https://github.com/reelyactive/pareto-anywhere/) server at pareto.local, filtering for a specific device:
+
+```javascript
+let options = { deviceSignature: "bada55beac04/2", io: io };
+
+beaver.stream('http://pareto.local', options);
+```
+
+For example, to stream using WebSockets from a [Pareto Anywhere for Azure](https://github.com/reelyactive/pareto-anywhere-azure/) server at pareto-anywhere.azurewebsites.net:
+
+```javascript
+let options = { wsUrl: 'ws://pareto-anywhere.azurewebsites.net' };
+
+beaver.stream(null, options);
+```
+
+
 ### on
+
+```javascript
+beaver.on('connect', () => {});
+beaver.on('raddec', (raddec) => { /* radio decoding data */ });
+beaver.on('dynamb', (dynamb) => { /* dynamic ambient data */ });
+beaver.on('spatem', (spatem) => { /* spatial-temporal data */ });
+beaver.on('stats', (stats) => {
+  // stats = {
+  //     numberOfDecodings: Number,
+  //     eventsPerSecond: { raddec: Number, dynamb: Number, spatem: Number }
+  // }
+});
+beaver.on('error', (error) => { /* error.message */ });
+beaver.on('disconnect', (reason) => { /* disconnect reason */ });
+```
 
 
 Supported variables
