@@ -54,6 +54,7 @@ If the serverRootUrl is provided, and valid, __beaver__ will HTTP GET the /conte
 For example, to stream using Socket.IO from a [Pareto Anywhere](https://github.com/reelyactive/pareto-anywhere/) server at pareto.local, filtering for a specific device:
 
 ```javascript
+// Include <script src="js/socket.io.min.js"></script> in the index.html
 let options = { deviceSignature: "bada55beac04/2", io: io };
 
 beaver.stream('http://pareto.local', options);
@@ -85,13 +86,15 @@ beaver.on('error', (error) => { /* error.message */ });
 beaver.on('disconnect', (reason) => { /* disconnect reason */ });
 ```
 
+Read the [reelyActive Developers Cheatsheet](https://reelyactive.github.io/diy/cheatsheet/) to learn more about the raddec, dynamb & spatem data structures.
+
 
 Supported variables
 -------------------
 
-| Variable         | Type | Description             |
-|:-----------------|:-----|:------------------------|
-| `beaver.devices` | Map  | Device signature as key |
+| Variable         | Type | Description                                       |
+|:-----------------|:-----|:--------------------------------------------------|
+| `beaver.devices` | Map  | Hyperlocal context graph: device signature as key |
 
 
 ![beaver logo](https://reelyactive.github.io/beaver/images/beaver-bubble.png)
