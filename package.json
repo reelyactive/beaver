@@ -5,15 +5,16 @@
     "name": "reelyActive",
     "email": "info@reelyactive.com"
   },
-  "description": "Client-side library to collect a real-time stream of events from reelyActive APIs. We believe in an open Internet of Things.",
+  "description": "Client-side utility to maintain an up-to-date hyperlocal context graph by consuming the real-time data stream from Pareto Anywhere APIs.  We believe in an open Internet of Things.",
   "keywords": [
     "reelyActive",
     "IoT",
     "RTLS",
     "RFID",
+    "hyperlocal context",
     "client-side"
   ],
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "./js/beaver.js",
   "files": [
     "./js/beaver.js"
