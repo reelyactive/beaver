@@ -15,7 +15,8 @@ let beaver = (function() {
 
   // Internal variables
   let devices = new Map();
-  let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [] };
+  let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [],
+                         stats: [] };
   let eventCounts = { raddec: 0, dynamb: 0, spatem: 0 };
   let updateMilliseconds = DEFAULT_UPDATE_MILLISECONDS;
   let updateTimeout = null;
@@ -138,6 +139,7 @@ let beaver = (function() {
     if(lastUpdateTime) {
       let updateIntervalSeconds = (currentUpdateTime - lastUpdateTime) / 1000;
       let stats = {
+          numberOfDevices: devices.size,
           eventsPerSecond: {
               raddec: eventCounts.raddec / updateIntervalSeconds,
               dynamb: eventCounts.dynamb / updateIntervalSeconds,
@@ -147,9 +149,9 @@ let beaver = (function() {
       eventCounts.raddec = 0;
       eventCounts.dynamb = 0;
       eventCounts.spatem = 0;
-    }
 
-    // TODO: emit stats
+      eventCallbacks['stats'].forEach(callback => callback(stats));
+    }
 
     lastUpdateTime = currentUpdateTime;
     updateTimeout = setTimeout(update, updateMilliseconds);
