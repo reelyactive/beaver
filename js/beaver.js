@@ -11,13 +11,14 @@ let beaver = (function() {
   const DEFAULT_STREAM_PATH = '/devices';
   const DEFAULT_QUERY_PATH = '/context';
   const DEFAULT_UPDATE_MILLISECONDS = 5000;
-  const DEFAULT_DISAPPEARANCE_MILLISECONDS = 15000;
+  const DEFAULT_STALE_DEVICE_MILLISECONDS = 60000;
 
   // Internal variables
   let devices = new Map();
   let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [],
                          stats: [] };
   let eventCounts = { raddec: 0, dynamb: 0, spatem: 0 };
+  let staleDeviceMilliseconds = DEFAULT_STALE_DEVICE_MILLISECONDS;
   let updateMilliseconds = DEFAULT_UPDATE_MILLISECONDS;
   let updateTimeout = null;
   let lastUpdateTime;
@@ -132,9 +133,42 @@ let beaver = (function() {
     }
   }
 
+  // Remove stale data/devices from the graph
+  function purgeStaleData() {
+    let staleCollection = [];
+    let nearestCollection = [];
+    let staleTimestamp = Date.now() - staleDeviceMilliseconds;
+
+    devices.forEach((device, signature) => {
+      let isStale = !((device.raddec &&
+                       (device.raddec.timestamp > staleTimestamp)) ||
+                      (device.dynamb &&
+                       (device.dynamb.timestamp > staleTimestamp)) ||
+                      (device.spatem &&
+                       (device.spatem.timestamp > staleTimestamp)));
+      if(isStale) {
+        staleCollection.push(signature);
+      }
+      else if(Array.isArray(device.nearest)) {
+        device.nearest.forEach((entry) => {
+          if(entry.device && !nearestCollection.includes(entry.device)) {
+            nearestCollection.push(entry.device);
+          }
+        });
+      }
+    });
+
+    staleCollection.forEach((signature) => {
+      if(!nearestCollection.includes(signature)) {
+        devices.delete(signature);
+      }
+    });
+  }
+
   // Update the hyperlocal context graph and stats, then set next update
   function update() {
     let currentUpdateTime = Date.now();
+    purgeStaleData();
 
     if(lastUpdateTime) {
       let updateIntervalSeconds = (currentUpdateTime - lastUpdateTime) / 1000;
