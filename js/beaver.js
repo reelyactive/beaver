@@ -23,6 +23,11 @@ let beaver = (function() {
   let updateTimeout = null;
   let lastUpdateTime;
 
+  // Determine if the given URL is valid
+  function isValidUrl(url) {
+    try { new URL(url); }  catch(error) { return false; }  return true;
+  }
+
   // Create the array of nearest devices based on the given raddec & dynamb
   function createNearest(raddec, dynamb) {
     let nearest = [];
@@ -208,7 +213,7 @@ let beaver = (function() {
   // Handle socket.io events
   function handleSocketEvents(socket, url) {
     socket.on('connect', () => {
-      console.log('beaver.js connected to socket on', url);
+      console.log('beaver.js connected to Socket.IO on', url);
       eventCallbacks['connect'].forEach(callback => callback());
     });
     socket.on('raddec', handleRaddec);
@@ -219,8 +224,35 @@ let beaver = (function() {
       eventCallbacks['error'].forEach(callback => callback(helpfulError));
     });
     socket.on('disconnect', (reason) => {
-      console.log('beaver.js disconnected from socket on', url);
+      console.log('beaver.js disconnected from Socket.IO on', url);
       eventCallbacks['disconnect'].forEach(callback => callback(reason));
+    });
+  }
+
+  // Handle WebSocket events
+  function handleWebSocketEvents(socket) {
+    socket.addEventListener('open', () => {
+      console.log('beaver.js connected to WebSocket on', socket.url);
+      eventCallbacks['connect'].forEach(callback => callback());
+    });
+    socket.addEventListener('message', (event) => {
+      try {
+        let message = JSON.parse(event.data);
+        switch(message.type) {
+          case 'raddec': handleRaddec(message.data); break;
+          case 'dynamb': handleDynamb(message.data); break;
+          case 'spatem': handleSpatem(message.data); break;
+        }
+      }
+      catch(err) {}
+    });
+    socket.addEventListener('error', (event) => {
+      let helpfulError = new Error('WebSocket error on ' + socket.url);
+      eventCallbacks['error'].forEach(callback => callback(helpfulError));
+    });
+    socket.addEventListener('close', (event) => {
+      console.log('beaver.js disconnected from WebSocket on', socket.url);
+      eventCallbacks['disconnect'].forEach(callback => callback(event.reason));
     });
   }
 
@@ -228,20 +260,32 @@ let beaver = (function() {
   let stream = function(serverRootUrl, options) {
     options = options || {};
     options.isDebug = options.isDebug || false;
-
-    let streamUrl = serverRootUrl + DEFAULT_STREAM_PATH;
-    let queryUrl = serverRootUrl + DEFAULT_QUERY_PATH;
     let streams = {};
 
-    if(options.deviceSignature) {
-      streamUrl = serverRootUrl + '/devices/' + options.deviceSignature;
-      queryUrl = serverRootUrl + '/context/device/' + options.deviceSignature;
-    }
+    if(isValidUrl(serverRootUrl)) {
+      let streamUrl = serverRootUrl + DEFAULT_STREAM_PATH;
+      let queryUrl = serverRootUrl + DEFAULT_QUERY_PATH;
 
-    retrieveJson(queryUrl, handleContext);
-    if(options.io) {
-      streams.socket = options.io.connect(streamUrl);
-      handleSocketEvents(streams.socket, streamUrl);
+      if(options.deviceSignature) {
+        streamUrl = serverRootUrl + '/devices/' + options.deviceSignature;
+        queryUrl = serverRootUrl + '/context/device/' + options.deviceSignature;
+      }
+
+      retrieveJson(queryUrl, handleContext);
+      if(options.io) {
+        streams.socket = options.io.connect(streamUrl);
+        handleSocketEvents(streams.socket, streamUrl);
+      }
+    }
+    else {
+      if(options.io && isValidUrl(options.ioUrl)) {
+        streams.socket = options.io.connect(options.ioUrl);
+        handleSocketEvents(streams.socket, options.ioUrl);
+      }
+      if(isValidUrl(options.wsUrl)) {
+        streams.websocket = new WebSocket(options.wsUrl);
+        handleWebSocketEvents(streams.websocket);
+      }
     }
 
     if(!updateTimeout) {
