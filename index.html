@@ -155,6 +155,37 @@
               </button>
             </div>
           </form>
+          <div id="statsDisplay" class="my-5" hidden>
+            <p class="small font-monospace text-muted mb-1">
+              beaver.on('stats', (stats) => {})
+            </p>
+            <div class="card-group text-center">
+              <div class="card">
+                <div class="card-body">
+                  <span id="deviceCount" class="card-text display-4"> 0 </span>
+                </div>
+                <div class="card-footer bg-dark text-white"> devices </div>
+              </div>
+              <div class="card">
+                <div class="card-body">
+                  <span id="raddecRate" class="card-text display-4"> 0.0 </span>
+                </div>
+                <div class="card-footer bg-dark text-white"> raddec/s </div>
+              </div>
+              <div class="card">
+                <div class="card-body">
+                  <span id="dynambRate" class="card-text display-4"> 0.0 </span>
+                </div>
+                <div class="card-footer bg-dark text-white"> dynamb/s </div>
+              </div>
+              <div class="card">
+                <div class="card-body">
+                  <span id="spatemRate" class="card-text display-4"> 0.0 </span>
+                </div>
+                <div class="card-footer bg-dark text-white"> spatem/s </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
