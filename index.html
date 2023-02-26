@@ -164,6 +164,27 @@
               </button>
             </div>
           </form>
+          <div id="errorDisplay" class="my-5" hidden>
+            <p class="small font-monospace text-muted mb-1">
+              beaver.on('error', (error) => console.log(error.message))
+            </p>
+            <div class="card">
+              <div class="row g-0">
+                <div class="col-1 d-flex align-items-center justify-content-center">
+                  <i class="fas fa-exclamation-triangle text-info display-6"></i>
+                </div>
+                <div class="col-11">
+                  <div class="card-body">
+                    <pre id="errorMessage" class="card-text mb-0"></pre>
+                    <small class="card-text text-muted">
+                      <i class="fas fa-clock"></i>
+                      <span id="errorTime"></span>
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div id="statsDisplay" class="my-5" hidden>
             <p class="small font-monospace text-muted mb-1">
               beaver.on('stats', (stats) => {})

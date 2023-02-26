@@ -16,7 +16,7 @@ let beaver = (function() {
   // Internal variables
   let devices = new Map();
   let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [],
-                         stats: [], disconnect: [] };
+                         stats: [], error: [], disconnect: [] };
   let eventCounts = { raddec: 0, dynamb: 0, spatem: 0 };
   let staleDeviceMilliseconds = DEFAULT_STALE_DEVICE_MILLISECONDS;
   let updateMilliseconds = DEFAULT_UPDATE_MILLISECONDS;
@@ -124,12 +124,11 @@ let beaver = (function() {
   }
 
   // Handle a context query callback
-  function handleContext(data, err) {
-    if(err) {
-      return console.log('beaver.js context query failed:\r\n', err);
-    }
-    for(const signature in data.devices) {
-      devices.set(signature, data.devices[signature]); // TODO: merge?
+  function handleContext(data) {
+    if(data) {
+      for(const signature in data.devices) {
+        devices.set(signature, data.devices[signature]); // TODO: merge?
+      }
     }
   }
 
@@ -195,27 +194,33 @@ let beaver = (function() {
   function retrieveJson(url, callback) {
     fetch(url, { headers: { "Accept": "application/json" } })
       .then((response) => {
-        if(!response.ok) {
-          throw new Error('GET ' + url + ' returned status ' + response.status);
-        }
+        if(!response.ok) { throw new Error('GET returned ' + response.status); }
         return response.json();
       })
       .then((result) => { return callback(result); })
-      .catch((error) => { return callback(null, error); });
+      .catch((error) => {
+        let helpfulError = new Error('Failed to GET ' + url);
+        eventCallbacks['error'].forEach(callback => callback(helpfulError));
+        return callback(null);
+      });
   }
 
   // Handle socket.io events
-  function handleSocketEvents(socket) {
+  function handleSocketEvents(socket, url) {
     socket.on('connect', () => {
-      console.log('beaver.js connected to socket');
+      console.log('beaver.js connected to socket on', url);
       eventCallbacks['connect'].forEach(callback => callback());
     });
     socket.on('raddec', handleRaddec);
     socket.on('dynamb', handleDynamb);
     socket.on('spatem', handleSpatem);
-    socket.on('disconnect', (message) => {
-      console.log('beaver.js disconnected from socket:', message);
-      eventCallbacks['disconnect'].forEach(callback => callback());
+    socket.on('connect_error', (error) => {
+      let helpfulError = new Error('Socket.IO connect error on ' + url);
+      eventCallbacks['error'].forEach(callback => callback(helpfulError));
+    });
+    socket.on('disconnect', (reason) => {
+      console.log('beaver.js disconnected from socket on', url);
+      eventCallbacks['disconnect'].forEach(callback => callback(reason));
     });
   }
 
@@ -236,7 +241,7 @@ let beaver = (function() {
     retrieveJson(queryUrl, handleContext);
     if(options.io) {
       streams.socket = options.io.connect(streamUrl);
-      handleSocketEvents(streams.socket);
+      handleSocketEvents(streams.socket, streamUrl);
     }
 
     if(!updateTimeout) {

@@ -13,6 +13,9 @@ let connectIcon = document.querySelector('#connectIcon');
 let exampleUrl = document.querySelector('#exampleUrl');
 let paretoUrl = document.querySelector('#paretoUrl');
 let paretoButton = document.querySelector('#paretoButton');
+let errorDisplay = document.querySelector('#errorDisplay');
+let errorMessage = document.querySelector('#errorMessage');
+let errorTime = document.querySelector('#errorTime');
 let statsDisplay = document.querySelector('#statsDisplay');
 let deviceCount =  document.querySelector('#deviceCount');
 let raddecRate = document.querySelector('#raddecRate');
@@ -25,8 +28,8 @@ paretoUrl.value = DEFAULT_URL;
 // Handle beaver events
 beaver.on('connect', handleConnect);
 beaver.on('stats', handleStats);
+beaver.on('error', handleError);
 beaver.on('disconnect', handleDisconnect);
-
 
 // Handle stream connection
 function handleConnect() {
@@ -38,6 +41,14 @@ function handleConnect() {
 function handleDisconnect() {
   statsDisplay.hidden = true;
   connectIcon.replaceChildren(createElement('i', 'fas fa-cloud text-warning'));
+}
+
+// Handle error
+function handleError(error) {
+  errorDisplay.hidden = false;
+  errorMessage.textContent = error.message;
+  errorTime.textContent = new Date().toLocaleTimeString();
+  connectIcon.replaceChildren(createElement('i', 'fas fa-cloud text-danger'));
 }
 
 // Handle stats
