@@ -148,15 +148,19 @@
       <div class="row justify-content-center">
         <div class="col-sm-12 col-md-10 col-lg-8 col-xl-6">
           <h1 class="mt-4"> beaver.js demo </h1>
-          <p class="lead"> Client-side utility to maintain an up-to-date hyperlocal context graph by consuming the real-time data stream from Pareto Anywhere APIs. </p>
-          <form class="mt-5" onsubmit="return false;">
+          <p class="lead"> Client-side utility to maintain an up-to-date <a href="https://www.reelyactive.com/context/" target="_blank" class="text-decoration-none">hyperlocal context</a> graph by consuming the real-time data <em>stream</em> from <a href="https://www.reelyactive.com/pareto/anywhere/" target="_blank" class="text-decoration-none">Pareto Anywhere</a> APIs. </p>
+          <p class="small font-monospace text-muted mt-5 mb-1">
+            beaver.stream('<span id="exampleUrl"></span>', {})
+          </p>
+          <form onsubmit="return false;">
             <div class="input-group">
+              <span class="input-group-text"> Server root URL: </span>
               <input type="url" class="form-control" id="paretoUrl" required
                      placeholder="http://pareto.local"
                      aria-label="Pareto Anywhere URL"
                      aria-describedby="paretoButton">
               <button class="btn btn-primary" type="button" id="paretoButton">
-                Connect
+                Stream
               </button>
             </div>
           </form>
@@ -164,7 +168,7 @@
             <p class="small font-monospace text-muted mb-1">
               beaver.on('stats', (stats) => {})
             </p>
-            <div class="card-group text-center">
+            <div class="card-group text-dark text-center">
               <div class="card">
                 <div class="card-body">
                   <span id="deviceCount" class="card-text display-4"> 0 </span>

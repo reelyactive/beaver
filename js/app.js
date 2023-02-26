@@ -10,6 +10,7 @@ const DEFAULT_URL = 'http://pareto.local';
 
 // DOM elements
 let connectIcon = document.querySelector('#connectIcon');
+let exampleUrl = document.querySelector('#exampleUrl');
 let paretoUrl = document.querySelector('#paretoUrl');
 let paretoButton = document.querySelector('#paretoButton');
 let statsDisplay = document.querySelector('#statsDisplay');
@@ -18,9 +19,8 @@ let raddecRate = document.querySelector('#raddecRate');
 let dynambRate = document.querySelector('#dynambRate');
 let spatemRate = document.querySelector('#spatemRate');
 
-
+exampleUrl.textContent = DEFAULT_URL;
 paretoUrl.value = DEFAULT_URL;
-
 
 // Handle beaver events
 beaver.on('connect', handleConnect);
@@ -75,6 +75,11 @@ function createElement(elementName, classNames, content) {
 
   return element;
 }
+
+// Handle Pareto URL input
+paretoUrl.addEventListener('input', () => {
+    exampleUrl.textContent = paretoUrl.value;
+});
 
 // Handle Pareto button click
 paretoButton.addEventListener('click', () => {
