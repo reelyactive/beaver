@@ -16,7 +16,7 @@ let beaver = (function() {
   // Internal variables
   let devices = new Map();
   let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [],
-                         stats: [] };
+                         stats: [], disconnect: [] };
   let eventCounts = { raddec: 0, dynamb: 0, spatem: 0 };
   let staleDeviceMilliseconds = DEFAULT_STALE_DEVICE_MILLISECONDS;
   let updateMilliseconds = DEFAULT_UPDATE_MILLISECONDS;
@@ -215,6 +215,7 @@ let beaver = (function() {
     socket.on('spatem', handleSpatem);
     socket.on('disconnect', (message) => {
       console.log('beaver.js disconnected from socket:', message);
+      eventCallbacks['disconnect'].forEach(callback => callback());
     });
   }
 
