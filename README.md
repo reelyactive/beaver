@@ -3,6 +3,8 @@ beaver.js
 
 __beaver__ maintains an up-to-date [hyperlocal context](https://www.reelyactive.com/context/) graph by consuming the real-time data stream from [Pareto Anywhere](https://www.reelyactive.com/pareto/anywhere/) APIs.
 
+![Overview of beaver.js](https://reelyactive.github.io/beaver/images/overview.png)
+
 __beaver__ is lightweight client-side JavaScript that runs in the browser.  See a live demo using the code in this repository at: [reelyactive.github.io/beaver](https://reelyactive.github.io/beaver)
 
 
