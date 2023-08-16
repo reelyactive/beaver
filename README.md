@@ -69,6 +69,18 @@ beaver.stream(null, options);
 ```
 
 
+### poll
+
+```javascript
+let serverRootUrl = 'http://pareto.local';
+let options = { intervalMilliseconds: 5000 }; // {} to instead poll just once
+
+beaver.poll(serverRootUrl, options);
+```
+
+Use `beaver.on('poll')` as notification of when each poll completes and the Map of `beaver.devices` is updated.
+
+
 ### on
 
 ```javascript
@@ -76,6 +88,7 @@ beaver.on('connect', () => {});
 beaver.on('raddec', (raddec) => { /* radio decoding data */ });
 beaver.on('dynamb', (dynamb) => { /* dynamic ambient data */ });
 beaver.on('spatem', (spatem) => { /* spatial-temporal data */ });
+beaver.on('poll' () => { /* beaver.devices is updated */ });
 beaver.on('stats', (stats) => {
   // stats = {
   //     numberOfDecodings: Number,
