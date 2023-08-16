@@ -308,6 +308,10 @@ let beaver = (function() {
         setTimeout(poll, options.intervalMilliseconds, serverRootUrl, options);
       }
     });
+
+    if(!updateTimeout) {
+      update(); // Start periodic updates
+    }
   };
 
   // Register a callback for the given event
