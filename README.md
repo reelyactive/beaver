@@ -82,6 +82,14 @@ beaver.poll(serverRootUrl, options);
 
 Use `beaver.on('poll')` as notification of when each poll completes and the Map of `beaver.devices` is updated.
 
+The options are as follows:
+
+| Property             | Default | Description                                |
+|:---------------------|:--------|:-------------------------------------------|
+| intervalMilliseconds | null    | Interval to poll (default poll just once)  |
+| deviceSignature      | null    | Specific device to poll (default all devices) |
+| clearDevices         | false   | Clear all devices before polling           |
+
 
 ### on
 

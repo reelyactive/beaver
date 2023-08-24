@@ -300,6 +300,13 @@ let beaver = (function() {
     options = options || {};
     let queryUrl = serverRootUrl + '/context/';
 
+    if(options.deviceSignature) {
+      queryUrl += 'device/' + options.deviceSignature;
+    }
+    if(options.clearDevices) {
+      devices.clear();
+    }
+
     retrieveJson(queryUrl, (data) => {
       handleContext(data);
       eventCallbacks['poll'].forEach(callback => callback());
