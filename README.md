@@ -98,6 +98,12 @@ beaver.on('connect', () => {});
 beaver.on('raddec', (raddec) => { /* radio decoding data */ });
 beaver.on('dynamb', (dynamb) => { /* dynamic ambient data */ });
 beaver.on('spatem', (spatem) => { /* spatial-temporal data */ });
+beaver.on('appearance', (deviceSignature, device) => {
+  /* beaver.devices added entity */
+});
+beaver.on('disappearance', (deviceSignature) => {
+  /* beaver.devices removed entity */
+});
 beaver.on('poll' () => { /* beaver.devices is updated */ });
 beaver.on('stats', (stats) => {
   // stats = {
