@@ -152,7 +152,7 @@ __beaver.js__ v1.0.0 was released in July 2019, superseding all earlier versions
 Modular Architecture
 --------------------
 
-__beaver__ is easily combined with the following complementary client-side modules:
+__beaver.js__ is easily combined with the following complementary client-side modules:
 - [cormorant.js](https://github.com/reelyactive/cormorant)
 - [charlotte.js](https://github.com/reelyactive/charlotte)
 - [cuttlefish.js](https://github.com/reelyactive/cuttlefish)
