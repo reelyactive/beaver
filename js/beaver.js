@@ -1,5 +1,5 @@
 /**
- * Copyright reelyActive 2016-2023
+ * Copyright reelyActive 2016-2025
  * We believe in an open Internet of Things
  */
 
@@ -22,6 +22,9 @@ let beaver = (function() {
   let staleDeviceMilliseconds = DEFAULT_STALE_DEVICE_MILLISECONDS;
   let updateMilliseconds = DEFAULT_UPDATE_MILLISECONDS;
   let updateTimeout = null;
+  let reviseTimestamps = false;
+  let staleMillisecondsSum = 0;
+  let staleMillisecondsCount = 0;
   let lastUpdateTime;
 
   // Determine if the given URL is valid
@@ -61,11 +64,24 @@ let beaver = (function() {
     return trimmedSpatem;
   }
 
+  // Manage the timestamp of the given event
+  function manageTimestamp(event) {
+    if(event && Number.isInteger(event.timestamp)) {
+      let staleMilliseconds = Date.now() - event.timestamp;
+      staleMillisecondsSum += staleMilliseconds;
+      staleMillisecondsCount++;
+      if(reviseTimestamps) {
+        event.timestamp = Date.now();
+      }
+    }
+  }
+
   // Handle the given raddec
   function handleRaddec(raddec) {
     let signature = raddec.transmitterId + SIGNATURE_SEPARATOR +
                     raddec.transmitterIdType;
     let device = devices.get(signature);
+    manageTimestamp(raddec);
 
     if(device) {
       if(!device.hasOwnProperty('raddec') ||
@@ -90,6 +106,7 @@ let beaver = (function() {
     let signature = dynamb.deviceId + SIGNATURE_SEPARATOR +
                     dynamb.deviceIdType;
     let device = devices.get(signature);
+    manageTimestamp(dynamb);
 
     if(device) {
       if(!device.hasOwnProperty('dynamb') ||
@@ -117,6 +134,7 @@ let beaver = (function() {
     let signature = spatem.deviceId + SIGNATURE_SEPARATOR +
                     spatem.deviceIdType;
     let device = devices.get(signature);
+    manageTimestamp(spatem);
 
     if(device) {
       if(!device.hasOwnProperty('spatem') ||
@@ -139,13 +157,16 @@ let beaver = (function() {
   function handleContext(data) {
     if(data) {
       for(const signature in data.devices) {
+        let device = data.devices[signature];
+        manageTimestamp(device.dynamb);
+        manageTimestamp(device.spatem);
         if(!devices.has(signature)) {
-          devices.set(signature, data.devices[signature]);
+          devices.set(signature, device);
           eventCallbacks['appearance'].forEach(
-                      callback => callback(signature, data.devices[signature]));
+                                      callback => callback(signature, device));
         }
         else {
-          devices.set(signature, data.devices[signature]); // TODO: merge?
+          devices.set(signature, device); // TODO: merge?
         }
       }
     }
@@ -198,7 +219,9 @@ let beaver = (function() {
               raddec: eventCounts.raddec / updateIntervalSeconds,
               dynamb: eventCounts.dynamb / updateIntervalSeconds,
               spatem: eventCounts.spatem / updateIntervalSeconds
-          }
+          },
+          averageEventStaleMilliseconds: Math.round(staleMillisecondsSum /
+                                                    staleMillisecondsCount)
       };
       eventCounts.raddec = 0;
       eventCounts.dynamb = 0;
@@ -276,6 +299,7 @@ let beaver = (function() {
   let stream = function(serverRootUrl, options) {
     options = options || {};
     options.isDebug = options.isDebug || false;
+    reviseTimestamps = options.reviseTimestamps || false;
     let streams = {};
 
     if(isValidUrl(serverRootUrl)) {
@@ -314,6 +338,7 @@ let beaver = (function() {
   // Poll from the given server
   let poll = function(serverRootUrl, options) {
     options = options || {};
+    reviseTimestamps = options.reviseTimestamps || false;
     let queryUrl = serverRootUrl + '/context/';
 
     if(options.deviceSignature) {

@@ -1,5 +1,5 @@
 /**
- * Copyright reelyActive 2016-2023
+ * Copyright reelyActive 2016-2025
  * We believe in an open Internet of Things
  */
 
@@ -21,6 +21,7 @@ let deviceCount =  document.querySelector('#deviceCount');
 let raddecRate = document.querySelector('#raddecRate');
 let dynambRate = document.querySelector('#dynambRate');
 let spatemRate = document.querySelector('#spatemRate');
+let staleSeconds = document.querySelector('#staleSeconds');
 
 exampleUrl.textContent = DEFAULT_URL;
 paretoUrl.value = DEFAULT_URL;
@@ -57,6 +58,8 @@ function handleStats(stats) {
   raddecRate.textContent = stats.eventsPerSecond.raddec.toFixed(1);
   dynambRate.textContent = stats.eventsPerSecond.dynamb.toFixed(1);
   spatemRate.textContent = stats.eventsPerSecond.spatem.toFixed(1);
+  staleSeconds.textContent = (stats.averageEventStaleMilliseconds /
+                              1000).toFixed(1);
 }
 
 // Create an element as specified
@@ -94,5 +97,5 @@ paretoUrl.addEventListener('input', () => {
 
 // Handle Pareto button click
 paretoButton.addEventListener('click', () => {
-    beaver.stream(paretoUrl.value, { io: io });
+    beaver.stream(paretoUrl.value, { io: io, reviseTimestamps: true });
 });
