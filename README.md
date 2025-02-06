@@ -120,6 +120,21 @@ beaver.on('disconnect', (reason) => { /* disconnect reason */ });
 Read the [reelyActive Developers Cheatsheet](https://reelyactive.github.io/diy/cheatsheet/) to learn more about the raddec, dynamb & spatem data structures.
 
 
+### reset
+
+```javascript
+let options = { /* See below */ };
+
+beaver.reset(options);
+```
+
+Disconnect from all Socket.IO and WebSocket streams, and stop any polling loops.
+
+| Property             | Default | Description                                |
+|:---------------------|:--------|:-------------------------------------------|
+| clearDevices         | false   | Clear `beaver.devices`                     |
+
+
 Supported variables
 -------------------
 

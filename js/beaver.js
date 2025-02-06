@@ -15,6 +15,7 @@ let beaver = (function() {
 
   // Internal variables
   let devices = new Map();
+  let sources = new Map();
   let eventCallbacks = { connect: [], raddec: [], dynamb: [], spatem: [],
                          poll: [], appearance: [], disappearance: [], stats: [],
                          error: [], disconnect: [] };
@@ -315,16 +316,20 @@ let beaver = (function() {
       if(options.io) {
         streams.socket = options.io.connect(streamUrl);
         handleSocketEvents(streams.socket, streamUrl);
+        sources.set(streamUrl, { socket: streams.socket });
       }
     }
     else {
+      // Sources will be incorrect in rare case of identical ioUrl & wsUrl!
       if(options.io && isValidUrl(options.ioUrl)) {
         streams.socket = options.io.connect(options.ioUrl);
         handleSocketEvents(streams.socket, options.ioUrl);
+        sources.set(options.ioUrl, { socket: streams.socket });
       }
       if(isValidUrl(options.wsUrl)) {
         streams.websocket = new WebSocket(options.wsUrl);
         handleWebSocketEvents(streams.websocket);
+        sources.set(options.wsUrl, { websocket: streams.websocket });
       }
     }
 
@@ -353,7 +358,9 @@ let beaver = (function() {
       eventCallbacks['poll'].forEach(callback => callback());
 
       if(Number.isInteger(options.intervalMilliseconds)) {
-        setTimeout(poll, options.intervalMilliseconds, serverRootUrl, options);
+        let timeoutId = setTimeout(poll, options.intervalMilliseconds,
+                                   serverRootUrl, options);
+        sources.set(queryUrl, { timeoutId: timeoutId });
       }
     });
 
@@ -361,6 +368,22 @@ let beaver = (function() {
       update(); // Start periodic updates
     }
   };
+
+  // Reset all streams and polls, and optionally clear devices
+  let reset = function(options) {
+    options = options || {};
+
+    sources.forEach((source, url) => {
+      if(source.socket) { source.socket.disconnect(); }
+      if(source.websocket) { source.websocket.close(); }
+      if(source.timeoutId) { clearTimeout(source.timeoutId); }
+    });
+    sources.clear();
+
+    if(options.clearDevices) {
+      devices.clear();
+    }
+  }
 
   // Register a callback for the given event
   let setEventCallback = function(event, callback) {
@@ -377,7 +400,8 @@ let beaver = (function() {
     stream: stream,
     poll: poll,
     on: setEventCallback,
-    devices: devices
+    devices: devices,
+    reset: reset
   }
 
 }());
