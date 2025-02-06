@@ -97,5 +97,5 @@ paretoUrl.addEventListener('input', () => {
 
 // Handle Pareto button click
 paretoButton.addEventListener('click', () => {
-    beaver.stream(paretoUrl.value, { io: io, reviseTimestamps: true });
+    beaver.stream(paretoUrl.value, { io: io });
 });
