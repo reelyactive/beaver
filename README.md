@@ -46,12 +46,13 @@ let streams = beaver.stream(serverRootUrl, options);
 
 If the serverRootUrl is provided, and valid, __beaver__ will HTTP GET the /context route once to establish the hyperlocal context graph.  The options are as follows:
 
-| Property        | Default | Description                                     |
-|:----------------|:--------|:------------------------------------------------|
-| deviceSignature | null    | Specific device to stream (default all devices) |
-| io              | null    | Socket.IO dependency                            |
-| ioUrl           | null    | Override default URL for Socket.IO to listen on |
-| wsUrl           | null    | Specific URL for WebSocket to listen on         |
+| Property         | Default | Description                                     |
+|:-----------------|:--------|:------------------------------------------------|
+| deviceSignature  | null    | Specific device to stream (default all devices) |
+| io               | null    | Socket.IO dependency                            |
+| ioUrl            | null    | Override default URL for Socket.IO to listen on |
+| wsUrl            | null    | Specific URL for WebSocket to listen on         |
+| reviseTimestamps | false   | Set incoming event timestamps to current time   |
 
 For example, to stream using Socket.IO from a [Pareto Anywhere](https://github.com/reelyactive/pareto-anywhere/) server at pareto.local, filtering for a specific device:
 
@@ -89,6 +90,7 @@ The options are as follows:
 | intervalMilliseconds | null    | Interval to poll (default poll just once)  |
 | deviceSignature      | null    | Specific device to poll (default all devices) |
 | clearDevices         | false   | Clear all devices before polling           |
+| reviseTimestamps     | false   | Set incoming event timestamps to current time |
 
 
 ### on
